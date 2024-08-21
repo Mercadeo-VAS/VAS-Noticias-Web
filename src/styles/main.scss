@@ -1,1 +1,6 @@
+@import './variables';
+@import './globals';
+// Custom Bootstrap styles should be added before importing the original Bootstrap styles.
 @import './custom-bootstrap.scss';
+
+@import 'bootstrap/scss/bootstrap';

@@ -4,10 +4,10 @@
 	import { Button } from '@sveltestrap/sveltestrap';
 </script>
 
-<Container sm>
+<div class="app-container">
 	<h1>Some Bootstrap components</h1>
 	<p>This is to play with the styles.</p>
 
 	<Button color="primary">Primary</Button>
 	<Button color="secondary">Secondary</Button>
-</Container>
+</div>
