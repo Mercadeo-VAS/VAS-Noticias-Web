@@ -1,0 +1,10 @@
+{
+    "recommendations": [
+        "streetsidesoftware.code-spell-checker",
+        "editorconfig.editorconfig",
+        "mrmlnc.vscode-scss",
+        "streetsidesoftware.code-spell-checker-spanish",
+        "svelte.svelte-vscode",
+        "ardenivanov.svelte-intellisense"
+    ]
+}
