@@ -1,8 +1,9 @@
 import js from '@eslint/js';
-import ts from 'typescript-eslint';
-import svelte from 'eslint-plugin-svelte';
 import prettier from 'eslint-config-prettier';
+import perfectionist from 'eslint-plugin-perfectionist';
+import svelte from 'eslint-plugin-svelte';
 import globals from 'globals';
+import ts from 'typescript-eslint';
 
 /** @type {import('eslint').Linter.Config[]} */
 export default [
@@ -25,112 +26,16 @@ export default [
 			parserOptions: {
 				parser: ts.parser
 			}
-		}
-	},
-	{
-		ignores: ['build/', '.svelte-kit/', 'dist/']
-	},
-	{
+		},
+		plugins: {
+			perfectionist,
+		},
 		rules: {
-			'max-len': ['error', 150],
-			'comma-dangle': ['error', 'always-multiline'],
-			'eqeqeq': ['error', 'always'],
-			'no-unused-expressions': 'error',
-			'no-shadow': 'off',
-			'prefer-const': 'error',
-			'no-var': 'error',
-			'curly': ['error', 'all'],
-			'object-curly-newline': [
-				'error',
-				{
-					'ObjectExpression': {
-						'multiline': true,
-						'consistent': true
-					},
-					'ObjectPattern': {
-						'multiline': true
-					},
-					'ImportDeclaration': {
-						'multiline': true
-					},
-					'ExportDeclaration': {
-						'multiline': true
-					}
-				}
-			],
-			'object-curly-spacing': 'off',
-			'@typescript-eslint/array-type': [
-				'error',
-				{
-					'default': 'array'
-				}
-			],
-			'@typescript-eslint/naming-convention': [
-				'error',
-				{
-					'selector': 'class',
-					'format': ['PascalCase']
-				},
-				{
-					'selector': 'interface',
-					'format': ['PascalCase'],
-					'custom': {
-						'regex': '^[A-Z][a-z]+(?:[A-Z][a-z]+)*$',
-						'match': true
-					}
-				},
-				{
-					'selector': 'typeAlias',
-					'format': ['PascalCase']
-				},
-				{
-					'selector': 'typeParameter',
-					'format': ['PascalCase'],
-					'prefix': ['T']
-				},
-				{
-					'selector': 'property',
-					'format': ['camelCase'],
-					'modifiers': ['public', 'protected', 'static']
-				},
-				{
-					'selector': 'property',
-					'format': ['camelCase'],
-					'modifiers': ['private'],
-					'leadingUnderscore': 'require'
-				},
-				{
-					'selector': 'method',
-					'format': ['camelCase'],
-					'modifiers': ['private'],
-					'leadingUnderscore': 'require'
-				},
-				{
-					'selector': 'function',
-					'format': ['camelCase']
-				},
-				{
-					'selector': 'parameter',
-					'format': ['camelCase']
-				}
-			],
-			'@typescript-eslint/no-inferrable-types': 'off',
-			'@typescript-eslint/typedef': [
-				'error',
-				{
-					'arrayDestructuring': false,
-					'objectDestructuring': false,
-					'arrowParameter': true,
-					'memberVariableDeclaration': false,
-					'parameter': true,
-					'propertyDeclaration': true
-				}
-			],
 			'perfectionist/sort-imports': [
 				'error',
 				{
-					'order': 'asc',
-					'groups': [
+					order: 'asc',
+					groups: [
 						['builtin', 'external'],
 						'internal-type',
 						'internal',
@@ -139,19 +44,15 @@ export default [
 						'side-effect',
 						'style',
 						'object',
-						'unknown'
+						'unknown',
 					],
-					'newlines-between': 'always',
-					'internal-pattern': ['@environments/**', '@shared/**']
-				}
+					newlinesBetween: 'always',
+					internalPattern: ['$lib/**'],
+				},
 			],
-			'perfectionist/sort-named-imports': [
-				'error',
-				{
-					'type': 'natural',
-					'order': 'asc'
-				}
-			]
-		}
-	}
+		},
+	},
+	{
+		ignores: ['build/', '.svelte-kit/', 'dist/']
+	},
 ];

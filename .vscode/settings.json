@@ -3,4 +3,13 @@
 	"files.eol": "\n",
 	"files.insertFinalNewline": true,
 	"svelte.enable-ts-plugin": true,
+	"editor.codeActionsOnSave": {
+		"source.fixAll.eslint": "explicit"
+	},
+	"eslint.validate": [
+		"svelte"
+	],
+	"cSpell.words": [
+		"swiper"
+	]
 }
