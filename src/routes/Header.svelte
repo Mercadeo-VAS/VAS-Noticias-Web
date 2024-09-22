@@ -20,11 +20,11 @@
 		gap: 0.25em;
 
 		.primary {
-			color: var(--global-color-primary);
+			color: var(--bs-primary);
 		}
 
 		.secondary {
-			color: var(--global-color-accent);
+			color: var(--bs-secondary);
 		}
 	}
 

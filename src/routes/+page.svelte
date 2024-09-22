@@ -33,6 +33,8 @@
 		grabCursor: true,
 		centeredSlides: true,
 		slidesPerView: 'auto',
+		slideToClickedSlide: true,
+		touchReleaseOnEdges: true,
 		coverflowEffect: {
 			rotate: 50,
 			stretch: 0,
@@ -200,7 +202,7 @@
 	}
 
 	.datesSwiper {
-		background-color: var(--global-color-light-gray);
+		background-color: var(--bs-gray-200);
 		margin-left: -3rem;
 		margin-right: -3rem;
 		padding-block: 0.5rem;
@@ -237,7 +239,7 @@
 		}
 
 		.today .day-number {
-			border: 2px solid var(--global-color-primary);
+			border: 2px solid var(--bs-primary);
 			border-radius: 100vmax;
 		}
 

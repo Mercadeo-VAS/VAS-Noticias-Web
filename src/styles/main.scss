@@ -5,22 +5,6 @@
 
 @import 'bootstrap/scss/bootstrap';
 
-:root {
-	// Colors
-	--global-color-primary: #01719F;
-	--global-color-primary-rgb: 1, 113, 159;
-	--global-color-primary-light: #1E8EC5;
-	--global-color-accent: #D3A92D;
-	--global-color-accent-rgb: 211, 169, 45;
-	--global-color-accent-light: hsl(45, 75%, 60%);
-	/* Original has 65% saturation and 50% lightness */
-	--global-color-accent-dark: hsl(45, 65%, 45%);
-	/* Original has lightness of 50% */
-	--global-color-light-gray: #E8F1F8;
-	/* Original has lightness of 94% */
-	--global-color-light-gray-rgb: 233, 236, 245;
-}
-
 section {
 	margin-top: 2.5rem;
 }
