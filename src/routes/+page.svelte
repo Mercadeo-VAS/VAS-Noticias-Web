@@ -9,12 +9,18 @@
 	import '../styles/main.scss';
 
 	type Event = {
-		id: number;
+		index: number;
 		imageLink: string;
 		date: string;
 	};
 
-	type CalendarDate = { date: Date; events: Event[] };
+	type CalendarDate = {
+		date: string;
+		events: Event[];
+	};
+
+	const DATES_SWIPE_SPEED_IN_MS = 1000;
+	const EVENTS_SWIPE_SPEED_IN_MS = 1000;
 
 	let datesSwiper: Swiper;
 	let upcomingEventsSwiper: Swiper;
@@ -25,7 +31,8 @@
 		grabCursor: true,
 		centeredSlides: true,
 		slidesPerView: 'auto',
-		spaceBetween: 4,
+		spaceBetween: 0,
+		loop: true,
 	};
 
 	const upcomingEventsSwiperParams: SwiperOptions = {
@@ -47,47 +54,52 @@
 		},
 		initialSlide: 3,
 		on: {
-			touchEnd: () => {
-				console.log('activeIndex', upcomingEventsSwiper.activeIndex);
-				selectedEvent = upcomingEvents[upcomingEventsSwiper.activeIndex];
+			transitionEnd: () => {
+				if (!upcomingEventsSwiper) {
+					return;
+				}
+
+				selectedEvent =
+					upcomingEvents[upcomingEventsSwiper.activeIndex];
 				const eventDate = selectedEvent.date;
 				const dateIndex = datesList.findIndex(
 					(date) =>
-						date.date.toISOString().split('T')[0] ===
+						date.date ===
 						new Date(eventDate).toISOString().split('T')[0],
 				)!;
-				datesSwiper.slideTo(dateIndex, 1000);
+				datesSwiper.slideToLoop(dateIndex, DATES_SWIPE_SPEED_IN_MS);
 			},
 		},
 	};
 
 	const daysOfTheWeek = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
 
+	// TODO: Validate that that the date format is 'yyyy-mm-dd'. If day, for example, is just `d` instead of `dd`, it will cause an error.
 	const upcomingEvents: Event[] = [
 		{
-			id: 1,
+			index: 0,
 			imageLink: 'images/Live - Emociones que matan.jpg',
 			date: '2024-08-28',
 		},
 		{
-			id: 2,
+			index: 1,
 			imageLink: 'images/Evento - Taller.jpg',
 			date: '2024-09-07',
 		},
 		{
-			id: 3,
+			index: 2,
 			imageLink: 'images/Evento - Feria Empresarial Kids.jpg',
-			date: '2024-09-7',
+			date: '2024-09-07',
 		},
 		{
-			id: 4,
+			index: 3,
 			imageLink: 'images/Curso - Te vuelvo a elegir.jpg',
 			date: '2024-10-05',
 		},
 		{
-			id: 5,
+			index: 4,
 			imageLink: 'images/Curso - Prematrimonial.jpg',
-			date: '2024-10-5',
+			date: '2024-10-05',
 		},
 	];
 
@@ -101,36 +113,60 @@
 		.concat(today.getTime());
 	const minDate = new Date(Math.min(...eventDates));
 	const maxDate = new Date(Math.max(...eventDates));
+
+	// Get previous Monday from the minDate
+	const minDateDay = minDate.getUTCDay();
+	const daysToSubtract = (minDateDay + 6) % 7;
+	const previousMonday = new Date(minDate);
+	previousMonday.setDate(minDate.getDate() - daysToSubtract);
+	console.log('getUTCDay', previousMonday.getUTCDay());
+
+	// Get next Sunday from maxDate
+	const maxDateDay = maxDate.getUTCDay();
+	const daysToAdd = (7 - maxDateDay) % 7;
+	const nextSunday = new Date(maxDate);
+	nextSunday.setDate(maxDate.getDate() + daysToAdd);
+
 	let datesList: CalendarDate[] = [];
 	for (
-		let currentDate = new Date(minDate);
-		currentDate <= maxDate;
+		let currentDate = new Date(previousMonday);
+		currentDate <= nextSunday;
 		currentDate.setDate(currentDate.getDate() + 1)
 	) {
-		datesList.push({ date: new Date(currentDate), events: [] });
+		datesList.push({
+			date: new Date(currentDate).toISOString().split('T')[0],
+			events: [],
+		});
 	}
 
 	// Match each event with its date in the datesList
 	for (const event of upcomingEvents) {
 		const dateWithEvent = datesList.find(
-			(date) =>
-				date.date.toISOString().split('T')[0] ===
-				new Date(event.date).toISOString().split('T')[0],
-		)!;
-
-		dateWithEvent.events.push(event);
+			(date) => date.date === event.date,
+		);
+		if (dateWithEvent) {
+			dateWithEvent.events.push(event);
+		}
 	}
 
 	selectedEvent = upcomingEvents[0];
 
+	// Create and append 12 of blank dates
+	new Array(12).fill(1).forEach(() => {
+		datesList.push({ date: '', events: [] });
+	});
+
 	onMount(async () => {
-		datesSwiper = new Swiper('.datesSwiper', datesSwiperParams);
-		upcomingEventsSwiper = new Swiper('.eventsSwiper', upcomingEventsSwiperParams);
+		datesSwiper = new Swiper('.dates-swiper', datesSwiperParams);
+		upcomingEventsSwiper = new Swiper(
+			'.events-swiper',
+			upcomingEventsSwiperParams,
+		);
 
 		startFly = true;
 
 		setTimeout(() => {
-			upcomingEventsSwiper.slideTo(0, 1500);
+			upcomingEventsSwiper.slideTo(0, EVENTS_SWIPE_SPEED_IN_MS);
 		}, 500);
 	});
 </script>
@@ -141,24 +177,38 @@
 	<section>
 		<h2>Próximos Eventos</h2>
 
-		<div class="datesSwiper swiper">
+		<div class="dates-swiper swiper">
 			<div class="swiper-wrapper fade-in">
 				{#each datesList as date, index (index)}
 					<div
 						class="swiper-slide"
-						class:today={date.date.toISOString().split('T')[0] ===
+						class:today={date.date ===
 							new Date().toISOString().split('T')[0]}
 						class:has-events={date.events.length}
 					>
-						<div class="day-of-the-week">{daysOfTheWeek[date.date.getUTCDay()]}</div>
-						<div class="day-number">{date.date.getUTCDate()}</div>
-						<div class="events">
+						<div class="day-of-the-week">
+							{daysOfTheWeek[new Date(date.date).getUTCDay()] ||
+								''}
+						</div>
+						<div class="day-number">
+							{new Date(date.date).getUTCDate() || ''}
+						</div>
+						<div
+							class="events"
+							class:two-or-more={date.events.length >= 2}
+						>
 							{#each date.events as event}
-								<div
+								<button
 									class="event"
-									class:selected={event.id === selectedEvent.id}
+									class:selected={event.index ===
+										selectedEvent.index}
 									style="background-image: url('{event.imageLink}');"
-								></div>
+									on:click={() =>
+										upcomingEventsSwiper.slideTo(
+											event.index,
+											EVENTS_SWIPE_SPEED_IN_MS,
+										)}
+								></button>
 							{/each}
 						</div>
 					</div>
@@ -167,14 +217,13 @@
 		</div>
 
 		<div
-			class="eventsSwiper swiper"
+			class="events-swiper swiper"
 			class:fly-in={startFly}
 		>
 			<div class="swiper-wrapper">
 				{#each upcomingEvents as event, index (index)}
 					<div class="swiper-slide">
 						<img
-							id="image{index}"
 							src={event.imageLink}
 							alt=""
 						/>
@@ -186,11 +235,13 @@
 	</section>
 
 	<section>
-		<h2>Invitación a Ministerio</h2>
+		<h2>Invitación a Ministerio o Anuncios</h2>
 	</section>
 </main>
 
 <style lang="scss">
+	$breakpoint-width: 920px;
+
 	main {
 		margin: 1rem auto;
 		max-width: 902px;
@@ -201,14 +252,21 @@
 			0 4px 6px -2px rgba(0, 0, 0, 0.05);
 	}
 
-	.datesSwiper {
+	@media (max-width: $breakpoint-width) {
+		main {
+			margin-block: 0;
+		}
+	}
+
+	.dates-swiper {
 		background-color: var(--bs-gray-200);
 		margin-left: -3rem;
 		margin-right: -3rem;
 		padding-block: 0.5rem;
 
 		.swiper-slide {
-			width: 4rem;
+			width: min(4rem, 14vw);
+			height: auto;
 			padding: 8px 4px 6px;
 			text-align: center;
 			display: flex;
@@ -247,22 +305,22 @@
 			display: flex;
 			justify-content: center;
 			gap: 6px;
+
+			&.two-or-more .selected {
+				box-shadow: 0 0 4px 2px var(--bs-gray);
+			}
 		}
 
 		.event {
 			width: 1.5rem;
 			aspect-ratio: 1;
 			background-size: contain;
-
-			&.selected {
-				box-shadow: 0 0 4px 2px var(--bs-gray);
-			}
 		}
 	}
 
-	.eventsSwiper {
-		margin-left: -2rem;
-		margin-right: -2rem;
+	.events-swiper {
+		margin-left: -3rem;
+		margin-right: -3rem;
 		padding-top: 1rem;
 		padding-bottom: 50px;
 		opacity: 0; // Will be overrode by .fly-in
