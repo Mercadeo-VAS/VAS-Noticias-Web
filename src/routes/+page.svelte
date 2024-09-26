@@ -8,15 +8,17 @@
 	import 'swiper/css/bundle'; // TODO: *** Change from bundle to the specific modules ***
 	import '../styles/main.scss';
 
+	type CalendarDate = {
+		date: string;
+		events: Event[];
+		weekIndex: number;
+	};
+
 	type Event = {
 		index: number;
 		imageLink: string;
 		date: string;
-	};
-
-	type CalendarDate = {
-		date: string;
-		events: Event[];
+		calendarDate?: CalendarDate;
 	};
 
 	const DATES_SWIPE_SPEED_IN_MS = 1000;
@@ -25,53 +27,38 @@
 	let datesSwiper: Swiper;
 	let upcomingEventsSwiper: Swiper;
 	let selectedEvent: Event;
+	let selectedDate: CalendarDate;
+	let monthAndYear: string;
 	let startFly = false;
 
-	const datesSwiperParams: SwiperOptions = {
-		grabCursor: true,
-		centeredSlides: true,
-		slidesPerView: 'auto',
-		spaceBetween: 0,
-		loop: true,
-	};
-
-	const upcomingEventsSwiperParams: SwiperOptions = {
-		effect: 'coverflow',
-		grabCursor: true,
-		centeredSlides: true,
-		slidesPerView: 'auto',
-		slideToClickedSlide: true,
-		touchReleaseOnEdges: true,
-		coverflowEffect: {
-			rotate: 50,
-			stretch: 0,
-			depth: 100,
-			modifier: 1,
-			slideShadows: true,
-		},
-		pagination: {
-			el: '.swiper-pagination',
-		},
-		initialSlide: 3,
-		on: {
-			transitionEnd: () => {
-				if (!upcomingEventsSwiper) {
-					return;
-				}
-
-				selectedEvent =
-					upcomingEvents[upcomingEventsSwiper.activeIndex];
-				const eventDate = selectedEvent.date;
-				const dateIndex = datesList.findIndex(
-					(date) =>
-						date.date ===
-						new Date(eventDate).toISOString().split('T')[0],
-				)!;
-				datesSwiper.slideToLoop(dateIndex, DATES_SWIPE_SPEED_IN_MS);
-			},
-		},
-	};
-
+	const monthNames = [
+		'Enero',
+		'Febrero',
+		'Marzo',
+		'Abril',
+		'Mayo',
+		'Junio',
+		'Julio',
+		'Agosto',
+		'Septiembre',
+		'Octubre',
+		'Noviembre',
+		'Diciembre',
+	];
+	const abbreviatedMonths = [
+		'Ene',
+		'Feb',
+		'Mar',
+		'Abr',
+		'May',
+		'Jun',
+		'Jul',
+		'Ago',
+		'Sep',
+		'Oct',
+		'Nov',
+		'Dic',
+	];
 	const daysOfTheWeek = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
 
 	// TODO: Validate that that the date format is 'yyyy-mm-dd'. If day, for example, is just `d` instead of `dd`, it will cause an error.
@@ -119,7 +106,6 @@
 	const daysToSubtract = (minDateDay + 6) % 7;
 	const previousMonday = new Date(minDate);
 	previousMonday.setDate(minDate.getDate() - daysToSubtract);
-	console.log('getUTCDay', previousMonday.getUTCDay());
 
 	// Get next Sunday from maxDate
 	const maxDateDay = maxDate.getUTCDay();
@@ -136,32 +122,98 @@
 		datesList.push({
 			date: new Date(currentDate).toISOString().split('T')[0],
 			events: [],
+			weekIndex: 0,
 		});
 	}
 
 	// Match each event with its date in the datesList
 	for (const event of upcomingEvents) {
-		const dateWithEvent = datesList.find(
-			(date) => date.date === event.date,
-		);
+		const dateWithEvent = datesList.find((date) => date.date === event.date);
 		if (dateWithEvent) {
+			event.calendarDate = dateWithEvent;
 			dateWithEvent.events.push(event);
 		}
 	}
 
-	selectedEvent = upcomingEvents[0];
+	// Group the dates by week
+	const weekList: CalendarDate[][] = [];
+	const daysByWeek = 7;
+	for (let i = 0; i < datesList.length; i += daysByWeek) {
+		const week = datesList.slice(i, i + daysByWeek);
+		week.forEach((date) => {
+			date.weekIndex = i / 7;
+		});
+		weekList.push(week);
+	}
 
-	// Create and append 12 of blank dates
-	new Array(12).fill(1).forEach(() => {
-		datesList.push({ date: '', events: [] });
-	});
+	selectedEvent = upcomingEvents[0];
+	selectedDate = selectedEvent.calendarDate!;
+
+	// Get the first day of the selected week
+	function getMonthAndYearOfFirstDayOfTheWeek(selectedDateDate: Date): string {
+		const day = selectedDateDate.getUTCDay();
+		const diff = (day === 0 ? -6 : 1) - day;
+		const firstDayOfTheWeek = new Date(selectedDate.date);
+		firstDayOfTheWeek.setDate(selectedDateDate.getUTCDate() + diff);
+
+		return `${monthNames[firstDayOfTheWeek.getMonth()]} ${firstDayOfTheWeek.getFullYear()}`;
+	}
+	monthAndYear = getMonthAndYearOfFirstDayOfTheWeek(new Date(selectedDate.date));
+
+	const datesSwiperParams: SwiperOptions = {
+		grabCursor: true,
+		centeredSlides: true,
+		slidesPerView: 'auto',
+		spaceBetween: 0,
+		on: {
+			transitionEnd: (swiper) => {
+				if (!datesSwiper) {
+					return;
+				}
+
+				const firstDateOfTheWeek = weekList[swiper.activeIndex][0];
+				const firstDayOfTheWeek = new Date(firstDateOfTheWeek.date);
+				monthAndYear = `${monthNames[firstDayOfTheWeek.getMonth()]} ${firstDayOfTheWeek.getFullYear()}`;
+			},
+		},
+	};
+
+	const upcomingEventsSwiperParams: SwiperOptions = {
+		effect: 'coverflow',
+		grabCursor: true,
+		centeredSlides: true,
+		slidesPerView: 'auto',
+		slideToClickedSlide: true,
+		touchReleaseOnEdges: true,
+		coverflowEffect: {
+			rotate: 50,
+			stretch: 0,
+			depth: 100,
+			modifier: 1,
+			slideShadows: true,
+		},
+		pagination: {
+			el: '.swiper-pagination',
+		},
+		initialSlide: 3,
+		on: {
+			transitionEnd: () => {
+				if (!upcomingEventsSwiper) {
+					return;
+				}
+
+				selectedEvent = upcomingEvents[upcomingEventsSwiper.activeIndex];
+				selectedDate = selectedEvent.calendarDate!;
+				monthAndYear = getMonthAndYearOfFirstDayOfTheWeek(new Date(selectedDate.date));
+
+				datesSwiper.slideToLoop(selectedDate.weekIndex, DATES_SWIPE_SPEED_IN_MS);
+			},
+		},
+	};
 
 	onMount(async () => {
 		datesSwiper = new Swiper('.dates-swiper', datesSwiperParams);
-		upcomingEventsSwiper = new Swiper(
-			'.events-swiper',
-			upcomingEventsSwiperParams,
-		);
+		upcomingEventsSwiper = new Swiper('.events-swiper', upcomingEventsSwiperParams);
 
 		startFly = true;
 
@@ -177,42 +229,57 @@
 	<section>
 		<h2>Próximos Eventos</h2>
 
-		<div class="dates-swiper swiper">
-			<div class="swiper-wrapper fade-in">
-				{#each datesList as date, index (index)}
-					<div
-						class="swiper-slide"
-						class:today={date.date ===
-							new Date().toISOString().split('T')[0]}
-						class:has-events={date.events.length}
-					>
-						<div class="day-of-the-week">
-							{daysOfTheWeek[new Date(date.date).getUTCDay()] ||
-								''}
-						</div>
-						<div class="day-number">
-							{new Date(date.date).getUTCDate() || ''}
-						</div>
-						<div
-							class="events"
-							class:two-or-more={date.events.length >= 2}
-						>
-							{#each date.events as event}
-								<button
-									class="event"
-									class:selected={event.index ===
-										selectedEvent.index}
-									style="background-image: url('{event.imageLink}');"
-									on:click={() =>
-										upcomingEventsSwiper.slideTo(
-											event.index,
-											EVENTS_SWIPE_SPEED_IN_MS,
-										)}
-								></button>
+		<div class="dates-row">
+			<h4 class="month-and-year fade-in">{monthAndYear}</h4>
+			<div class="dates-swiper swiper">
+				<div class="swiper-wrapper fade-in">
+					{#each weekList as week}
+						<div class="swiper-slide week">
+							{#each week as date}
+								{@const dateDate = new Date(date.date)}
+								{@const dayOfTheWeek = daysOfTheWeek[dateDate.getUTCDay()] || ''}
+								{@const dayNumber = dateDate.getUTCDate() || ''}
+								<div
+									class="date {dayOfTheWeek.toLowerCase()}"
+									class:today={date.date ===
+										new Date().toISOString().split('T')[0]}
+									class:selected-date={date === selectedDate}
+								>
+									<div class="day-of-the-week">
+										{dayOfTheWeek}
+									</div>
+									<div class="day-number-container">
+										{#if dayNumber === 1}
+											<div class="month">
+												{abbreviatedMonths[dateDate.getUTCMonth()]}
+											</div>
+										{/if}
+										<div class="day-number">
+											{dayNumber}
+										</div>
+									</div>
+									<div
+										class="events"
+										class:two-or-more={date.events.length >= 2}
+									>
+										{#each date.events as event}
+											<button
+												class="event"
+												class:selected={event.index === selectedEvent.index}
+												style="background-image: url('{event.imageLink}');"
+												on:click={() =>
+													upcomingEventsSwiper.slideTo(
+														event.index,
+														EVENTS_SWIPE_SPEED_IN_MS,
+													)}
+											></button>
+										{/each}
+									</div>
+								</div>
 							{/each}
 						</div>
-					</div>
-				{/each}
+					{/each}
+				</div>
 			</div>
 		</div>
 
@@ -234,7 +301,7 @@
 		</div>
 	</section>
 
-	<section>
+	<section style="display: none;">
 		<h2>Invitación a Ministerio o Anuncios</h2>
 	</section>
 </main>
@@ -255,17 +322,43 @@
 	@media (max-width: $breakpoint-width) {
 		main {
 			margin-block: 0;
+			height: 100vh;
+		}
+	}
+
+	.dates-row {
+		background-color: var(--bs-gray-200);
+		margin-left: -3rem;
+		margin-right: -3rem;
+		padding-top: 0.5rem;
+
+		h4 {
+			text-align: center;
+			margin-bottom: 0.25rem;
 		}
 	}
 
 	.dates-swiper {
-		background-color: var(--bs-gray-200);
-		margin-left: -3rem;
-		margin-right: -3rem;
 		padding-block: 0.5rem;
 
-		.swiper-slide {
-			width: min(4rem, 14vw);
+		.week {
+			display: flex;
+			width: min(450px, 101vw);
+			height: auto;
+			opacity: 1;
+			transition: opacity 150ms linear;
+
+			&.swiper-slide-active {
+				border-inline: 1px solid rgba(0, 0, 0, 0.35);
+			}
+
+			&:not(.swiper-slide-active) {
+				opacity: 0.25;
+			}
+		}
+
+		.date {
+			flex: 1;
 			height: auto;
 			padding: 8px 4px 6px;
 			text-align: center;
@@ -276,7 +369,7 @@
 			align-items: center;
 		}
 
-		:global(.swiper-slide-active.has-events) {
+		.selected-date {
 			background-color: white;
 			border-radius: 4px;
 			box-shadow:
@@ -289,11 +382,20 @@
 			opacity: 0.5;
 		}
 
-		.day-number {
-			width: 2rem;
-			aspect-ratio: 1;
-			line-height: 27px;
+		.day-number-container {
+			display: flex;
+			align-items: baseline;
 			font-weight: bold;
+		}
+
+		.month {
+			margin-right: -6px;
+		}
+
+		.day-number {
+			height: 2rem;
+			aspect-ratio: 1;
+			line-height: 28px;
 		}
 
 		.today .day-number {
@@ -315,6 +417,7 @@
 			width: 1.5rem;
 			aspect-ratio: 1;
 			background-size: contain;
+			border: none;
 		}
 	}
 
