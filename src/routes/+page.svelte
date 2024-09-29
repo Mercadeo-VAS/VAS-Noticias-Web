@@ -205,6 +205,8 @@
 				selectedEvent = upcomingEvents[upcomingEventsSwiper.activeIndex];
 				selectedDate = selectedEvent.calendarDate!;
 				monthAndYear = getMonthAndYearOfFirstDayOfTheWeek(new Date(selectedDate.date));
+				// const selectedDateDate = new Date(selectedDate.date);
+				// monthAndYear = `${monthNames[selectedDateDate.getMonth()]} ${selectedDateDate.getFullYear()}`;
 
 				datesSwiper.slideToLoop(selectedDate.weekIndex, DATES_SWIPE_SPEED_IN_MS);
 			},
@@ -249,12 +251,10 @@
 										{dayOfTheWeek}
 									</div>
 									<div class="day-number-container">
-										{#if dayNumber === 1}
-											<div class="month">
-												{abbreviatedMonths[dateDate.getUTCMonth()]}
-											</div>
-										{/if}
 										<div class="day-number">
+											{#if dayNumber === 1}
+												{abbreviatedMonths[dateDate.getUTCMonth()]}
+											{/if}
 											{dayNumber}
 										</div>
 									</div>
@@ -313,7 +313,7 @@
 		margin: 1rem auto;
 		max-width: 902px;
 		background-color: white;
-		padding: 2rem 3rem;
+		padding: 2rem min(3rem, 6vw);
 		box-shadow:
 			0 10px 15px -3px rgba(0, 0, 0, 0.1),
 			0 4px 6px -2px rgba(0, 0, 0, 0.05);
@@ -328,11 +328,12 @@
 
 	.dates-row {
 		background-color: var(--bs-gray-200);
-		margin-left: -3rem;
-		margin-right: -3rem;
+		margin-left: max(-3rem, -6vw);
+		margin-right: max(-3rem, -6vw);
 		padding-top: 0.5rem;
 
 		h4 {
+			font-size: min(22px, 5vw);
 			text-align: center;
 			margin-bottom: 0.25rem;
 		}
@@ -342,9 +343,10 @@
 		padding-block: 0.5rem;
 
 		.week {
-			display: flex;
-			width: min(450px, 101vw);
+			width: min(458px, 101vw);
 			height: auto;
+			padding-inline: 0.25rem;
+			display: flex;
 			opacity: 1;
 			transition: opacity 150ms linear;
 
@@ -385,31 +387,31 @@
 		.day-number-container {
 			display: flex;
 			align-items: baseline;
+			font-size: min(1rem, 3.5vw);
 			font-weight: bold;
-		}
-
-		.month {
-			margin-right: -6px;
 		}
 
 		.day-number {
 			height: 2rem;
 			aspect-ratio: 1;
 			line-height: 28px;
+			white-space: nowrap;
 		}
 
 		.today .day-number {
 			border: 2px solid var(--bs-primary);
 			border-radius: 100vmax;
+			padding-inline: 4px;
 		}
 
 		.events {
 			display: flex;
 			justify-content: center;
-			gap: 6px;
+			padding-inline: 2px;
+			gap: 0.25rem;
 
 			&.two-or-more .selected {
-				box-shadow: 0 0 4px 2px var(--bs-gray);
+				outline: 2px solid var(--bs-primary);
 			}
 		}
 
@@ -422,8 +424,8 @@
 	}
 
 	.events-swiper {
-		margin-left: -3rem;
-		margin-right: -3rem;
+		margin-left: max(-3rem, -6vw);
+		margin-right: max(-3rem, -6vw);
 		padding-top: 1rem;
 		padding-bottom: 50px;
 		opacity: 0; // Will be overrode by .fly-in

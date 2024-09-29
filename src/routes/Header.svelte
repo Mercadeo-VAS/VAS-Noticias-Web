@@ -13,7 +13,7 @@
 <style lang="scss">
 	h1 {
 		font-weight: bold;
-		font-size: 3rem;
+		font-size: min(3rem, 10vw);
 		display: flex;
 		justify-content: center;
 		align-items: center;
@@ -29,6 +29,6 @@
 	}
 
 	.logo {
-		height: 4rem;
+		height: min(4rem, 14vw);
 	}
 </style>
