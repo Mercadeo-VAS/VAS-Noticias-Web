@@ -13,7 +13,7 @@
 <style lang="scss">
 	h1 {
 		font-weight: bold;
-		font-size: min(3rem, 10vw);
+		font-size: min(3rem, 10.8vw);
 		display: flex;
 		justify-content: center;
 		align-items: center;
