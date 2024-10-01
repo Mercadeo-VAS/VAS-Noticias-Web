@@ -17,8 +17,8 @@
 	type Event = {
 		index: number;
 		imageLink: string;
-		date: string;
-		calendarDate?: CalendarDate;
+		dates: string[];
+		calendarDates?: CalendarDate[];
 	};
 
 	const DATES_SWIPE_SPEED_IN_MS = 1000;
@@ -27,7 +27,7 @@
 	let datesSwiper: Swiper;
 	let upcomingEventsSwiper: Swiper;
 	let selectedEvent: Event;
-	let selectedDate: CalendarDate;
+	let selectedDates: CalendarDate[] = [];
 	let monthAndYear: string;
 	let startFly = false;
 
@@ -66,27 +66,27 @@
 		{
 			index: 0,
 			imageLink: 'images/Live - Emociones que matan.jpg',
-			date: '2024-08-28',
+			dates: ['2024-08-28'],
 		},
 		{
 			index: 1,
 			imageLink: 'images/Evento - Taller.jpg',
-			date: '2024-09-07',
+			dates: ['2024-09-07'],
 		},
 		{
 			index: 2,
 			imageLink: 'images/Evento - Feria Empresarial Kids.jpg',
-			date: '2024-09-07',
+			dates: ['2024-09-07', '2024-09-08'],
 		},
 		{
 			index: 3,
 			imageLink: 'images/Curso - Te vuelvo a elegir.jpg',
-			date: '2024-10-05',
+			dates: ['2024-10-05', '2024-10-12', '2024-10-19'],
 		},
 		{
 			index: 4,
 			imageLink: 'images/Curso - Prematrimonial.jpg',
-			date: '2024-10-05',
+			dates: ['2024-10-05', '2024-10-12', '2024-10-19'],
 		},
 	];
 
@@ -96,7 +96,7 @@
 
 	const today = new Date();
 	const eventDates = upcomingEvents
-		.map((event) => new Date(event.date).getTime())
+		.flatMap((event) => event.dates.map((date) => new Date(date).getTime()))
 		.concat(today.getTime());
 	const minDate = new Date(Math.min(...eventDates));
 	const maxDate = new Date(Math.max(...eventDates));
@@ -128,10 +128,13 @@
 
 	// Match each event with its date in the datesList
 	for (const event of upcomingEvents) {
-		const dateWithEvent = datesList.find((date) => date.date === event.date);
-		if (dateWithEvent) {
-			event.calendarDate = dateWithEvent;
-			dateWithEvent.events.push(event);
+		event.calendarDates = [];
+		for (const eventDate of event.dates) {
+			const dateWithEvent = datesList.find((date) => date.date === eventDate);
+			if (dateWithEvent) {
+				event.calendarDates.push(dateWithEvent);
+				dateWithEvent.events.push(event);
+			}
 		}
 	}
 
@@ -147,18 +150,18 @@
 	}
 
 	selectedEvent = upcomingEvents[0];
-	selectedDate = selectedEvent.calendarDate!;
+	selectedDates = selectedEvent.calendarDates!;
 
 	// Get the first day of the selected week
 	function getMonthAndYearOfFirstDayOfTheWeek(selectedDateDate: Date): string {
 		const day = selectedDateDate.getUTCDay();
 		const diff = (day === 0 ? -6 : 1) - day;
-		const firstDayOfTheWeek = new Date(selectedDate.date);
+		const firstDayOfTheWeek = new Date(selectedDateDate);
 		firstDayOfTheWeek.setDate(selectedDateDate.getUTCDate() + diff);
 
 		return `${monthNames[firstDayOfTheWeek.getMonth()]} ${firstDayOfTheWeek.getFullYear()}`;
 	}
-	monthAndYear = getMonthAndYearOfFirstDayOfTheWeek(new Date(selectedDate.date));
+	monthAndYear = getMonthAndYearOfFirstDayOfTheWeek(new Date(selectedEvent.dates[0]));
 
 	const datesSwiperParams: SwiperOptions = {
 		grabCursor: true,
@@ -203,12 +206,11 @@
 				}
 
 				selectedEvent = upcomingEvents[upcomingEventsSwiper.activeIndex];
-				selectedDate = selectedEvent.calendarDate!;
-				monthAndYear = getMonthAndYearOfFirstDayOfTheWeek(new Date(selectedDate.date));
-				// const selectedDateDate = new Date(selectedDate.date);
-				// monthAndYear = `${monthNames[selectedDateDate.getMonth()]} ${selectedDateDate.getFullYear()}`;
+				selectedDates = selectedEvent.calendarDates!;
+				const firstSelectedDateDate = new Date(selectedDates[0].date);
+				monthAndYear = `${monthNames[firstSelectedDateDate.getMonth()]} ${firstSelectedDateDate.getFullYear()}`;
 
-				datesSwiper.slideToLoop(selectedDate.weekIndex, DATES_SWIPE_SPEED_IN_MS);
+				datesSwiper.slideToLoop(selectedDates[0].weekIndex, DATES_SWIPE_SPEED_IN_MS);
 			},
 		},
 	};
@@ -245,7 +247,7 @@
 									class="date {dayOfTheWeek.toLowerCase()}"
 									class:today={date.date ===
 										new Date().toISOString().split('T')[0]}
-									class:selected-date={date === selectedDate}
+									class:selected={selectedDates.includes(date)}
 								>
 									<div class="day-of-the-week">
 										{dayOfTheWeek}
@@ -258,10 +260,7 @@
 											{dayNumber}
 										</div>
 									</div>
-									<div
-										class="events"
-										class:two-or-more={date.events.length >= 2}
-									>
+									<div class="events">
 										{#each date.events as event}
 											<button
 												class="event"
@@ -343,10 +342,11 @@
 		padding-block: 0.5rem;
 
 		.week {
-			width: min(458px, 101vw);
+			width: min(486px, 101vw);
 			height: auto;
-			padding-inline: 0.25rem;
+			padding-inline: 6px;
 			display: flex;
+			gap: 0.25rem;
 			opacity: 1;
 			transition: opacity 150ms linear;
 
@@ -369,14 +369,14 @@
 			gap: 4px;
 			line-height: 1;
 			align-items: center;
-		}
 
-		.selected-date {
-			background-color: white;
-			border-radius: 4px;
-			box-shadow:
-				0 4px 6px -1px rgb(0 0 0 / 0.1),
-				0 2px 4px -2px rgb(0 0 0 / 0.1);
+			&.selected {
+				background-color: white;
+				border-radius: 4px;
+				box-shadow:
+					0 4px 6px -1px rgb(0 0 0 / 0.1),
+					0 2px 4px -2px rgb(0 0 0 / 0.1);
+			}
 		}
 
 		.day-of-the-week {
@@ -410,7 +410,8 @@
 			padding-inline: 2px;
 			gap: 0.25rem;
 
-			&.two-or-more .selected {
+			.selected {
+				box-shadow: 0 0 0 1px var(--bs-white) inset;
 				outline: 2px solid var(--bs-primary);
 			}
 		}
