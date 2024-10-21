@@ -33,8 +33,10 @@
 	},
 	"type": "module",
 	"dependencies": {
+		"@fortawesome/free-solid-svg-icons": "^6.6.0",
 		"@sveltestrap/sveltestrap": "^6.2.7",
 		"bootstrap": "^5.3.3",
+		"svelte-fa": "^4.0.3",
 		"swiper": "^11.1.9"
 	}
 }

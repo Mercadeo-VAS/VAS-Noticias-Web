@@ -1,11 +1,15 @@
 <script lang="ts">
+	import { faShare } from '@fortawesome/free-solid-svg-icons';
+	import { Button } from '@sveltestrap/sveltestrap';
 	import { onMount } from 'svelte';
+	import Fa from 'svelte-fa';
 	import Swiper from 'swiper/bundle';
 	import type { SwiperOptions } from 'swiper/types';
 
 	import Header from './Header.svelte';
 
-	import 'swiper/css/bundle'; // TODO: *** Change from bundle to the specific modules ***
+	// TODO: *** Change from bundle to the specific modules ***
+	import 'swiper/css/bundle';
 	import '../styles/main.scss';
 
 	type CalendarDate = {
@@ -19,6 +23,10 @@
 		imageLink: string;
 		dates: string[];
 		calendarDates?: CalendarDate[];
+		description: string;
+		isFooterVisible?: boolean;
+		isFlipped?: boolean;
+		showBackSide?: boolean;
 	};
 
 	const DATES_SWIPE_SPEED_IN_MS = 1000;
@@ -62,31 +70,58 @@
 	const daysOfTheWeek = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
 
 	// TODO: Validate that that the date format is 'yyyy-mm-dd'. If day, for example, is just `d` instead of `dd`, it will cause an error.
-	const upcomingEvents: Event[] = [
+	let upcomingEvents: Event[] = [
 		{
 			index: 0,
 			imageLink: 'images/Live - Emociones que matan.jpg',
 			dates: ['2024-08-28'],
+			description: 'Los invitamos al programa Hablemos, con el Pastor Marco Vega y Fio',
 		},
 		{
 			index: 1,
 			imageLink: 'images/Evento - Taller.jpg',
 			dates: ['2024-09-07'],
+			description:
+				'Te invitamos al taller: “Comprendiendo a el dolor , la realidad detrás de las autolesiones y la conducta suicida”; donde conocerás como prevenir situaciones de riesgo de autolesiones, factores de riesgo, señales de alerta, detonantes, primeros auxilios psicológicos.',
 		},
 		{
 			index: 2,
 			imageLink: 'images/Evento - Feria Empresarial Kids.jpg',
 			dates: ['2024-09-07', '2024-09-08'],
+			description:
+				'Si eres un niño entre 4 a 11años y  tienes un emprendimiento el Ministerio de Excelencia te invita a participar en nuestra Feria Empresarial Kids a realizarse los días 7 y 8 de setiembre, para inscripciones contactar a Mariana Garro cel.8986-0649',
 		},
 		{
 			index: 3,
 			imageLink: 'images/Curso - Te vuelvo a elegir.jpg',
 			dates: ['2024-10-05', '2024-10-12', '2024-10-19'],
+			description: `Curso Te Vuelvo a Elegir
+¿Deseas poner en orden tu vida matrimonial?
+¿Están en unión libre o solo casados por lo civil?
+ Los invitamos a ser parte del curso "Te vuelvo a elegir"
+ Los sábados 5-12-19 octubre, en horario de 8 am a 1 pm
+Requisitos:
+•⁠  ⁠Que ambos estén presentes los 3 sábados
+•⁠  ⁠Estar ambos en libertad de estado, para recibir la bendición del Señor por medio del pastor.
+Inversión ¢ 50.000.00 por pareja; incluye desayuno, materiales, expositores y más detalles.
+Sean parte de esta maravillosa experiencia en donde se compartirá y recibirán muchas herramientas para disfrutar la maravillosa aventura del matrimonio.
+Para inscripción o más información pueden escribir al 6418-5055
+https://forms.gle/39rHw2ERcf5XRUdt6`,
 		},
 		{
 			index: 4,
 			imageLink: 'images/Curso - Prematrimonial.jpg',
 			dates: ['2024-10-05', '2024-10-12', '2024-10-19'],
+			description: `Curso Prematrimonial VAS
+Dirigido a parejas de novios que no viven juntos y que este será su primer matrimonio.
+Los sábados 5-12-19 de octubre en horario de 8 am a 1 pm.
+Requisitos: que ambos estén presentes los 3 sábados.
+Fecha límite de inscripción 30 de Setiembre.
+Inversión ¢ 50.000.00 por pareja.
+Incluye desayuno, materiales, detalles, expositores y certificado.
+Nuestro curso es una oportunidad para recibir herramientas y consejos para construir un matrimonio saludable.
+Para más información pueden escribir al 7208-4652 con Yanerys Castro
+https://forms.gle/9vCzbFpu7KfgYGki7`,
 		},
 	];
 
@@ -150,6 +185,7 @@
 	}
 
 	selectedEvent = upcomingEvents[0];
+	selectedEvent.isFooterVisible = true;
 	selectedDates = selectedEvent.calendarDates!;
 
 	// Get the first day of the selected week
@@ -181,6 +217,16 @@
 		},
 	};
 
+	let eventFooterVisibilityTimeout: ReturnType<typeof setTimeout>;
+
+	function hideEventFooter() {
+		selectedEvent.isFooterVisible = false;
+		clearTimeout(eventFooterVisibilityTimeout);
+
+		// Force Svelte reactivity
+		upcomingEvents = upcomingEvents;
+	}
+
 	const upcomingEventsSwiperParams: SwiperOptions = {
 		effect: 'coverflow',
 		grabCursor: true,
@@ -198,7 +244,7 @@
 		pagination: {
 			el: '.swiper-pagination',
 		},
-		initialSlide: 3,
+		initialSlide: upcomingEvents.length - 2,
 		on: {
 			transitionEnd: () => {
 				if (!upcomingEventsSwiper) {
@@ -211,7 +257,17 @@
 				monthAndYear = `${monthNames[firstSelectedDateDate.getMonth()]} ${firstSelectedDateDate.getFullYear()}`;
 
 				datesSwiper.slideToLoop(selectedDates[0].weekIndex, DATES_SWIPE_SPEED_IN_MS);
+
+				// Show the event footer after a delay
+				eventFooterVisibilityTimeout = setTimeout(() => {
+					selectedEvent.isFooterVisible = true;
+
+					// Force Svelte reactivity
+					upcomingEvents = upcomingEvents;
+				}, 500);
 			},
+			sliderFirstMove: hideEventFooter,
+			slideChangeTransitionStart: hideEventFooter,
 		},
 	};
 
@@ -222,7 +278,7 @@
 		startFly = true;
 
 		setTimeout(() => {
-			upcomingEventsSwiper.slideTo(0, EVENTS_SWIPE_SPEED_IN_MS);
+			upcomingEventsSwiper.slideTo(0, EVENTS_SWIPE_SPEED_IN_MS * 2);
 		}, 500);
 	});
 </script>
@@ -289,10 +345,76 @@
 			<div class="swiper-wrapper">
 				{#each upcomingEvents as event, index (index)}
 					<div class="swiper-slide">
-						<img
-							src={event.imageLink}
-							alt=""
-						/>
+						<div
+							class="card-container"
+							class:flipped={event.isFlipped}
+							class:back-side-visible={event.showBackSide}
+						>
+							<div class="front side">
+								<img
+									class="event-image"
+									src={event.imageLink}
+									alt="Evento"
+								/>
+								<div
+									class="footer"
+									class:visible={event.isFooterVisible}
+								>
+									<Button
+										size="sm"
+										color="light"
+									>
+										<Fa icon={faShare} />
+										Compartir
+									</Button>
+									<Button
+										size="sm"
+										color="primary"
+										on:click={() =>
+											(event.isFlipped = event.showBackSide = true)}
+									>
+										Ver más detalles
+										<img
+											src="/icons/rotate-180-icon.svg"
+											alt=""
+										/>
+									</Button>
+								</div>
+							</div>
+
+							<div class="back-bg side">
+								<div class="footer" />
+							</div>
+
+							<div class="back side">
+								<div class="content">{event.description}</div>
+								<div class="footer">
+									<Button
+										size="sm"
+										color="light"
+									>
+										<Fa icon={faShare} />
+										Compartir
+									</Button>
+									<Button
+										size="sm"
+										color="primary"
+										on:click={() => {
+											event.isFlipped = false;
+											setTimeout(() => {
+												event.showBackSide = false;
+											}, 1500);
+										}}
+									>
+										Volver
+										<img
+											src="/icons/rotate-180-icon.svg"
+											alt=""
+										/>
+									</Button>
+								</div>
+							</div>
+						</div>
 					</div>
 				{/each}
 			</div>
@@ -425,23 +547,117 @@
 	}
 
 	.events-swiper {
+		$img-size: 300px;
+		$footer-height: 40px;
+
 		margin-left: max(-3rem, -6vw);
 		margin-right: max(-3rem, -6vw);
 		padding-top: 1rem;
-		padding-bottom: 50px;
+		padding-bottom: 50px + $footer-height;
 		opacity: 0; // Will be overrode by .fly-in
 
 		.swiper-slide {
-			background-position: center;
-			background-size: cover;
-			width: 300px;
-			height: 300px;
-			overflow: hidden;
+			width: $img-size;
+			height: $img-size;
 		}
 
-		.swiper-slide img {
+		.card-container {
+			transition: 1.5s ease-in-out;
+			transform-style: preserve-3d;
+			height: 100%;
+
+			&.flipped {
+				transform: rotateY(180deg);
+			}
+		}
+
+		.side {
+			position: absolute;
+			inset: 0;
+			transform-style: preserve-3d;
+		}
+
+		.front {
+			z-index: 2;
+
+			.event-image {
+				width: 100%;
+				aspect-ratio: 1;
+			}
+
+			.footer {
+				height: $footer-height;
+				background-color: rgba(var(--bs-primary-rgb), 0.15);
+				padding-inline: 0.25rem;
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				border-bottom-left-radius: 4px;
+				border-bottom-right-radius: 4px;
+				opacity: 0;
+				transition: opacity 1.5s ease;
+			}
+
+			.visible {
+				opacity: 1;
+			}
+		}
+
+		.back-bg {
+			z-index: 1;
+			background-color: rgba(255, 255, 255, 0.9);
+			transform: translatez(-0.05px) scale(1.002);
+
+			.footer {
+				width: 100%;
+				height: $footer-height + 2px;
+				position: absolute;
+				bottom: -$footer-height;
+				background-color: white;
+			}
+		}
+
+		.back {
+			display: none;
+			transform: rotateY(180deg);
+			background-color: transparent;
+			transform: translatez(-50px) scale(0.95832) rotateY(180deg);
+			backface-visibility: hidden;
+
+			.content {
+				$padding-bottom: 32px;
+				padding: 1rem;
+				padding-bottom: $padding-bottom;
+				height: $img-size;
+				line-height: 1.25;
+				overflow-y: auto;
+				overflow-x: hidden;
+				position: relative;
+
+				&::after {
+					content: '';
+					position: absolute;
+					inset: 0;
+					height: $padding-bottom;
+					margin-top: auto;
+					background: linear-gradient(transparent, white);
+				}
+			}
+
+			.footer {
+				height: $footer-height;
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+			}
+		}
+
+		.back-side-visible .back {
 			display: block;
-			width: 100%;
+		}
+
+		.footer img {
+			width: 1.5rem;
 		}
 	}
 
