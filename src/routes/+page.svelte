@@ -636,7 +636,7 @@ https://forms.gle/9vCzbFpu7KfgYGki7`,
 
 				&::after {
 					content: '';
-					position: absolute;
+					position: fixed;
 					inset: 0;
 					height: $padding-bottom;
 					margin-top: auto;
