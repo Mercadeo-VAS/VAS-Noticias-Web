@@ -629,7 +629,7 @@ https://forms.gle/9vCzbFpu7KfgYGki7`,
 				padding: 1rem;
 				padding-bottom: $padding-bottom;
 				height: $img-size;
-				line-height: 1.25;
+				line-height: 1.4;
 				overflow-y: auto;
 				overflow-x: hidden;
 				position: relative;
