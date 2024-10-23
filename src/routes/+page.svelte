@@ -12,12 +12,14 @@
 	import 'swiper/css/bundle';
 	import '../styles/main.scss';
 
+	// Type for the dates in the Dates Swiper
 	type CalendarDate = {
 		date: string;
 		events: Event[];
 		weekIndex: number;
 	};
 
+	// Type for the Events in the Events Swiper
 	type Event = {
 		index: number;
 		imageLink: string;
@@ -37,6 +39,7 @@
 	let selectedEvent: Event;
 	let selectedDates: CalendarDate[] = [];
 	let monthAndYear: string;
+	let didSlideChangeFromEvents = false;
 	let startFly = false;
 
 	const monthNames = [
@@ -206,7 +209,8 @@ https://forms.gle/9vCzbFpu7KfgYGki7`,
 		spaceBetween: 0,
 		on: {
 			transitionEnd: (swiper) => {
-				if (!datesSwiper) {
+				if (!datesSwiper || didSlideChangeFromEvents) {
+					didSlideChangeFromEvents = false;
 					return;
 				}
 
@@ -255,6 +259,7 @@ https://forms.gle/9vCzbFpu7KfgYGki7`,
 				selectedDates = selectedEvent.calendarDates!;
 				const firstSelectedDateDate = new Date(selectedDates[0].date);
 				monthAndYear = `${monthNames[firstSelectedDateDate.getMonth()]} ${firstSelectedDateDate.getFullYear()}`;
+				didSlideChangeFromEvents = true;
 
 				datesSwiper.slideToLoop(selectedDates[0].weekIndex, DATES_SWIPE_SPEED_IN_MS);
 
@@ -443,7 +448,7 @@ https://forms.gle/9vCzbFpu7KfgYGki7`,
 	@media (max-width: $breakpoint-width) {
 		main {
 			margin-block: 0;
-			height: 100vh;
+			min-height: 100vh;
 		}
 	}
 
@@ -641,6 +646,7 @@ https://forms.gle/9vCzbFpu7KfgYGki7`,
 					height: $padding-bottom;
 					margin-top: auto;
 					background: linear-gradient(transparent, white);
+					transform: translateY(1px);
 				}
 			}
 
@@ -658,6 +664,7 @@ https://forms.gle/9vCzbFpu7KfgYGki7`,
 
 		.footer img {
 			width: 1.5rem;
+			margin: -4px -2px -2px 0px;
 		}
 	}
 
