@@ -1,6 +1,7 @@
 <script lang="ts">
-	import Header from './Header.svelte';
-	import UpcomingEvents from './UpcomingEvents.svelte';
+	import AnnouncementsComponent from './AnnouncementsComponent.svelte';
+	import Header from './HeaderComponent.svelte';
+	import UpcomingEvents from './UpcomingEventsComponent.svelte';
 
 </script>
 
@@ -11,8 +12,8 @@
 		<UpcomingEvents />
 	</section>
 
-	<section style="display: none;">
-		<h2>Anuncios</h2>
+	<section>
+		<AnnouncementsComponent />
 	</section>
 </main>
 
