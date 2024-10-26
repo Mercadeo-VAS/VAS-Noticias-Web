@@ -2,7 +2,6 @@
 	import AnnouncementsComponent from './AnnouncementsComponent.svelte';
 	import Header from './HeaderComponent.svelte';
 	import UpcomingEvents from './UpcomingEventsComponent.svelte';
-
 </script>
 
 <main>

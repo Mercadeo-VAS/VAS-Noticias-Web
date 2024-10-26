@@ -5,7 +5,7 @@
 	import Fa from 'svelte-fa';
 	import Swiper from 'swiper/bundle';
 	import type { SwiperOptions } from 'swiper/types';
-// TODO: *** Change from bundle to the specific modules ***
+	// TODO: *** Change from bundle to the specific modules ***
 	import 'swiper/css/bundle';
 	import '../styles/main.scss';
 
@@ -285,143 +285,139 @@ https://forms.gle/9vCzbFpu7KfgYGki7`,
 	});
 </script>
 
-		<h2>Próximos Eventos</h2>
+<h2>Próximos Eventos</h2>
 
-		<div class="dates-row">
-			<h4 class="month-and-year fade-in">{monthAndYear}</h4>
-			<div class="dates-swiper swiper">
-				<div class="swiper-wrapper fade-in">
-					{#each weekList as week}
-						<div class="swiper-slide week">
-							{#each week as date}
-								{@const dateDate = new Date(date.date)}
-								{@const dayOfTheWeek = daysOfTheWeek[dateDate.getUTCDay()] || ''}
-								{@const dayNumber = dateDate.getUTCDate() || ''}
-								<div
-									class="date {dayOfTheWeek.toLowerCase()}"
-									class:today={date.date ===
-										new Date().toISOString().split('T')[0]}
-									class:selected={selectedDates.includes(date)}
-								>
-									<div class="day-of-the-week">
-										{dayOfTheWeek}
-									</div>
-									<div class="day-number-container">
-										<div class="day-number">
-											{#if dayNumber === 1}
-												{abbreviatedMonths[dateDate.getUTCMonth()]}
-											{/if}
-											{dayNumber}
-										</div>
-									</div>
-									<div class="events">
-										{#each date.events as event}
-											<button
-												class="event"
-												class:selected={event.index === selectedEvent.index}
-												style="background-image: url('{event.imageLink}');"
-												on:click={() =>
-													upcomingEventsSwiper.slideTo(
-														event.index,
-														EVENTS_SWIPE_SPEED_IN_MS,
-													)}
-											></button>
-										{/each}
-									</div>
+<div class="dates-row">
+	<h4 class="month-and-year fade-in">{monthAndYear}</h4>
+	<div class="dates-swiper swiper">
+		<div class="swiper-wrapper fade-in">
+			{#each weekList as week}
+				<div class="swiper-slide week">
+					{#each week as date}
+						{@const dateDate = new Date(date.date)}
+						{@const dayOfTheWeek = daysOfTheWeek[dateDate.getUTCDay()] || ''}
+						{@const dayNumber = dateDate.getUTCDate() || ''}
+						<div
+							class="date {dayOfTheWeek.toLowerCase()}"
+							class:today={date.date === new Date().toISOString().split('T')[0]}
+							class:selected={selectedDates.includes(date)}
+						>
+							<div class="day-of-the-week">
+								{dayOfTheWeek}
+							</div>
+							<div class="day-number-container">
+								<div class="day-number">
+									{#if dayNumber === 1}
+										{abbreviatedMonths[dateDate.getUTCMonth()]}
+									{/if}
+									{dayNumber}
 								</div>
-							{/each}
+							</div>
+							<div class="events">
+								{#each date.events as event}
+									<button
+										class="event"
+										class:selected={event.index === selectedEvent.index}
+										style="background-image: url('{event.imageLink}');"
+										on:click={() =>
+											upcomingEventsSwiper.slideTo(
+												event.index,
+												EVENTS_SWIPE_SPEED_IN_MS,
+											)}
+									></button>
+								{/each}
+							</div>
 						</div>
 					{/each}
 				</div>
-			</div>
+			{/each}
 		</div>
+	</div>
+</div>
 
-		<div
-			class="events-swiper swiper"
-			class:fly-in={startFly}
-		>
-			<div class="swiper-wrapper">
-				{#each upcomingEvents as event, index (index)}
-					<div class="swiper-slide">
+<div
+	class="events-swiper swiper"
+	class:fly-in={startFly}
+>
+	<div class="swiper-wrapper">
+		{#each upcomingEvents as event, index (index)}
+			<div class="swiper-slide">
+				<div
+					class="card-container"
+					class:flipped={event.isFlipped}
+					class:back-side-visible={event.showBackSide}
+				>
+					<div class="front side">
+						<img
+							class="event-image"
+							src={event.imageLink}
+							alt="Evento"
+						/>
 						<div
-							class="card-container"
-							class:flipped={event.isFlipped}
-							class:back-side-visible={event.showBackSide}
+							class="footer"
+							class:visible={event.isFooterVisible}
 						>
-							<div class="front side">
+							<Button
+								size="sm"
+								color="light"
+							>
+								<Fa icon={faShare} />
+								Compartir
+							</Button>
+							<Button
+								size="sm"
+								color="primary"
+								on:click={() => (event.isFlipped = event.showBackSide = true)}
+							>
+								Ver más detalles
 								<img
-									class="event-image"
-									src={event.imageLink}
-									alt="Evento"
+									src="/icons/rotate-180-icon.svg"
+									alt=""
 								/>
-								<div
-									class="footer"
-									class:visible={event.isFooterVisible}
-								>
-									<Button
-										size="sm"
-										color="light"
-									>
-										<Fa icon={faShare} />
-										Compartir
-									</Button>
-									<Button
-										size="sm"
-										color="primary"
-										on:click={() =>
-											(event.isFlipped = event.showBackSide = true)}
-									>
-										Ver más detalles
-										<img
-											src="/icons/rotate-180-icon.svg"
-											alt=""
-										/>
-									</Button>
-								</div>
-							</div>
-
-							<div class="back-bg side">
-								<div class="footer" />
-							</div>
-
-							<div class="back side">
-								<div class="content">{event.description}</div>
-								<div class="footer">
-									<Button
-										size="sm"
-										color="light"
-									>
-										<Fa icon={faShare} />
-										Compartir
-									</Button>
-									<Button
-										size="sm"
-										color="primary"
-										on:click={() => {
-											event.isFlipped = false;
-											setTimeout(() => {
-												event.showBackSide = false;
-											}, 1500);
-										}}
-									>
-										Volver
-										<img
-											src="/icons/rotate-180-icon.svg"
-											alt=""
-										/>
-									</Button>
-								</div>
-							</div>
+							</Button>
 						</div>
 					</div>
-				{/each}
-			</div>
-			<div class="swiper-pagination"></div>
-		</div>
 
+					<div class="back-bg side">
+						<div class="footer" />
+					</div>
+
+					<div class="back side">
+						<div class="content">{event.description}</div>
+						<div class="footer">
+							<Button
+								size="sm"
+								color="light"
+							>
+								<Fa icon={faShare} />
+								Compartir
+							</Button>
+							<Button
+								size="sm"
+								color="primary"
+								on:click={() => {
+									event.isFlipped = false;
+									setTimeout(() => {
+										event.showBackSide = false;
+									}, 1500);
+								}}
+							>
+								Volver
+								<img
+									src="/icons/rotate-180-icon.svg"
+									alt=""
+								/>
+							</Button>
+						</div>
+					</div>
+				</div>
+			</div>
+		{/each}
+	</div>
+	<div class="swiper-pagination"></div>
+</div>
 
 <style lang="scss">
-
 	.dates-row {
 		background-color: var(--bs-gray-200);
 		margin-left: max(-3rem, -6vw);
