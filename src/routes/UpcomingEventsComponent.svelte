@@ -384,7 +384,10 @@ https://forms.gle/9vCzbFpu7KfgYGki7`,
 
 					<div class="back side">
 						<div class="content">{event.description}</div>
-						<div class="footer">
+						<div
+							class="footer"
+							class:visible={event.isFooterVisible}
+						>
 							<Button
 								size="sm"
 								color="light"
@@ -568,10 +571,6 @@ https://forms.gle/9vCzbFpu7KfgYGki7`,
 				opacity: 0;
 				transition: opacity 1.5s ease;
 			}
-
-			.visible {
-				opacity: 1;
-			}
 		}
 
 		.back-bg {
@@ -621,7 +620,13 @@ https://forms.gle/9vCzbFpu7KfgYGki7`,
 				display: flex;
 				align-items: center;
 				justify-content: space-between;
+				opacity: 0;
+				transition: opacity 1.5s ease;
 			}
+		}
+
+		.footer.visible {
+			opacity: 1;
 		}
 
 		.back-side-visible .back {
