@@ -576,7 +576,7 @@ https://forms.gle/9vCzbFpu7KfgYGki7`,
 		.back-bg {
 			z-index: 1;
 			background-color: rgba(255, 255, 255, 0.9);
-			transform: translatez(-0.05px) scale(1.002);
+			transform: translatez(-0.06px) scale(1.002);
 
 			.footer {
 				width: 100%;
