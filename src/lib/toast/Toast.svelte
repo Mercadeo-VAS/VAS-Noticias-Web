@@ -21,7 +21,7 @@
 </Toast>
 
 <style lang="scss">
-	:global(.toast) {
+	:global(:root .toast) {
 		--bs-toast-padding-x: 1rem;
 		--bs-toast-bg: var(--bs-dark);
 		--bs-toast-color: white;
