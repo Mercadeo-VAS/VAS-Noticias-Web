@@ -1,13 +1,20 @@
 <script lang="ts">
+	import { page } from '$app/stores';
 	import { faShare } from '@fortawesome/free-solid-svg-icons';
 	import { Button } from '@sveltestrap/sveltestrap';
 	import { onMount } from 'svelte';
 	import Fa from 'svelte-fa';
 	import Swiper from 'swiper/bundle';
 	import type { SwiperOptions } from 'swiper/types';
+
+	import { openSocialMediaModal } from '$lib/modal';
+	import { showToast } from '$lib/toast';
 	// TODO: *** Change from bundle to the specific modules ***
 	import 'swiper/css/bundle';
 	import '../styles/main.scss';
+
+	const eventSlug = $page.url.searchParams.get('event');
+	console.log('eventSlug', eventSlug);
 
 	// Type for the dates in the Dates Swiper
 	type CalendarDate = {
@@ -19,6 +26,7 @@
 	// Type for the Events in the Events Swiper
 	type Event = {
 		index: number;
+		slug: string;
 		imageLink: string;
 		dates: string[];
 		calendarDates?: CalendarDate[];
@@ -30,6 +38,7 @@
 
 	const DATES_SWIPE_SPEED_IN_MS = 1000;
 	const EVENTS_SWIPE_SPEED_IN_MS = 1000;
+	const SHARE_LINK_BASE = 'https://vas-noticias.netlify.app/';
 
 	let datesSwiper: Swiper;
 	let upcomingEventsSwiper: Swiper;
@@ -73,12 +82,14 @@
 	let upcomingEvents: Event[] = [
 		{
 			index: 0,
+			slug: 'emociones-que-matan',
 			imageLink: 'images/Live - Emociones que matan.jpg',
 			dates: ['2024-08-28'],
 			description: 'Los invitamos al programa Hablemos, con el Pastor Marco Vega y Fio',
 		},
 		{
 			index: 1,
+			slug: 'taller-autolesiones-y-la-conducta-suicida',
 			imageLink: 'images/Evento - Taller.jpg',
 			dates: ['2024-09-07'],
 			description:
@@ -86,6 +97,7 @@
 		},
 		{
 			index: 2,
+			slug: 'feria-empresarial-kids',
 			imageLink: 'images/Evento - Feria Empresarial Kids.jpg',
 			dates: ['2024-09-07', '2024-09-08'],
 			description:
@@ -93,6 +105,7 @@
 		},
 		{
 			index: 3,
+			slug: 'curso-te-vuelvo-a-elegir',
 			imageLink: 'images/Curso - Te vuelvo a elegir.jpg',
 			dates: ['2024-10-05', '2024-10-12', '2024-10-19'],
 			description: `Curso Te Vuelvo a Elegir
@@ -110,6 +123,7 @@ https://forms.gle/39rHw2ERcf5XRUdt6`,
 		},
 		{
 			index: 4,
+			slug: 'curso-prematrimonial',
 			imageLink: 'images/Curso - Prematrimonial.jpg',
 			dates: ['2024-10-05', '2024-10-12', '2024-10-19'],
 			description: `Curso Prematrimonial VAS
@@ -280,7 +294,19 @@ https://forms.gle/9vCzbFpu7KfgYGki7`,
 		startFly = true;
 
 		setTimeout(() => {
-			upcomingEventsSwiper.slideTo(0, EVENTS_SWIPE_SPEED_IN_MS * 2);
+			let navigateToIndex = 0;
+
+			if (eventSlug) {
+				const eventFromURL = upcomingEvents.find((event) => event.slug === eventSlug);
+				if (eventFromURL) {
+					navigateToIndex = eventFromURL.index;
+				} else {
+					console.error(`Evento '${eventSlug}' no encontrado`);
+					showToast('Evento no encontrado');
+				}
+			}
+
+			upcomingEventsSwiper.slideTo(navigateToIndex, EVENTS_SWIPE_SPEED_IN_MS * 2);
 		}, 500);
 	});
 </script>
@@ -360,6 +386,10 @@ https://forms.gle/9vCzbFpu7KfgYGki7`,
 							<Button
 								size="sm"
 								color="light"
+								on:click={() =>
+									openSocialMediaModal({
+										shareLink: `${SHARE_LINK_BASE}?event=${selectedEvent.slug}`,
+									})}
 							>
 								<Fa icon={faShare} />
 								Compartir
@@ -419,6 +449,21 @@ https://forms.gle/9vCzbFpu7KfgYGki7`,
 	</div>
 	<div class="swiper-pagination"></div>
 </div>
+
+<svelte:head>
+	<meta
+		property="og:title"
+		content="VAS Noticias"
+	/>
+	<meta
+		property="og:image"
+		content={selectedEvent.imageLink}
+	/>
+	<meta
+		property="og:url"
+		content={`${SHARE_LINK_BASE}?event=${selectedEvent.slug}`}
+	/>
+</svelte:head>
 
 <style lang="scss">
 	.dates-row {

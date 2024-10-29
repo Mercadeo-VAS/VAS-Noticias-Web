@@ -34,6 +34,7 @@ export default [
 			'perfectionist/sort-imports': [
 				'error',
 				{
+					type: 'natural',
 					order: 'asc',
 					groups: [
 						['builtin', 'external'],
