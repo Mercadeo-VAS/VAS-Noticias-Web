@@ -457,7 +457,7 @@ https://forms.gle/9vCzbFpu7KfgYGki7`,
 	/>
 	<meta
 		property="og:image"
-		content={selectedEvent.imageLink}
+		content={SHARE_LINK_BASE + selectedEvent.imageLink}
 	/>
 	<meta
 		property="og:url"
