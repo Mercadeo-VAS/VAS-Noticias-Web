@@ -42,25 +42,25 @@
 			name: 'Telegram',
 			icon: faTelegramPlane,
 			color: '#3390EC',
-			shareLink: 'https://t.me/share/url?url=<URL>',
+			shareLink: `https://t.me/share/url?url=${shareLink}`,
 		},
 		[SocialMedia.WHATSAPP]: {
 			name: 'WhatsApp',
 			icon: faWhatsapp,
 			color: '#25d366',
-			shareLink: 'https://wa.me/?text=<URL>',
+			shareLink: `https://wa.me/?text=${shareLink}`,
 		},
 		[SocialMedia.FACEBOOK]: {
 			name: 'Facebook',
 			icon: faFacebookF,
 			color: '#1877f2',
-			shareLink: 'https://www.facebook.com/sharer/sharer.php?u=<URL>',
+			shareLink: `https://www.facebook.com/sharer/sharer.php?u=${shareLink}`,
 		},
 		[SocialMedia.X]: {
 			name: 'X',
 			icon: faXTwitter,
 			color: '#000',
-			shareLink: 'https://twitter.com/intent/tweet?url=<URL>',
+			shareLink: `https://twitter.com/intent/tweet?url=${shareLink}`,
 		},
 	};
 
