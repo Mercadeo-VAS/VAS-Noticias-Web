@@ -13,9 +13,6 @@
 	import 'swiper/css/bundle';
 	import '../styles/main.scss';
 
-	const eventSlug = $page.url.searchParams.get('event');
-	console.log('eventSlug', eventSlug);
-
 	// Type for the dates in the Dates Swiper
 	type CalendarDate = {
 		date: string;
@@ -198,7 +195,20 @@ https://forms.gle/9vCzbFpu7KfgYGki7`,
 		weekList.push(week);
 	}
 
-	selectedEvent = upcomingEvents[0];
+	// Get selected Event from the URL event param if indicated
+	const eventSlug = $page.url.searchParams.get('event');
+	let eventFromURL: Event | undefined;
+	if (eventSlug) {
+		eventFromURL = upcomingEvents.find((event) => event.slug === eventSlug);
+	}
+	if (eventFromURL) {
+		selectedEvent = eventFromURL;
+	} else {
+		console.error(`Evento '${eventSlug}' no encontrado`);
+		showToast('Evento no encontrado');
+		selectedEvent = upcomingEvents[0];
+	}
+
 	selectedEvent.isFooterVisible = true;
 	selectedDates = selectedEvent.calendarDates!;
 
@@ -294,19 +304,7 @@ https://forms.gle/9vCzbFpu7KfgYGki7`,
 		startFly = true;
 
 		setTimeout(() => {
-			let navigateToIndex = 0;
-
-			if (eventSlug) {
-				const eventFromURL = upcomingEvents.find((event) => event.slug === eventSlug);
-				if (eventFromURL) {
-					navigateToIndex = eventFromURL.index;
-				} else {
-					console.error(`Evento '${eventSlug}' no encontrado`);
-					showToast('Evento no encontrado');
-				}
-			}
-
-			upcomingEventsSwiper.slideTo(navigateToIndex, EVENTS_SWIPE_SPEED_IN_MS * 2);
+			upcomingEventsSwiper.slideTo(selectedEvent.index, EVENTS_SWIPE_SPEED_IN_MS * 2);
 		}, 500);
 	});
 </script>
