@@ -196,17 +196,16 @@ https://forms.gle/9vCzbFpu7KfgYGki7`,
 	}
 
 	// Get selected Event from the URL event param if indicated
-	const eventSlug = $page.url.searchParams.get('event');
-	let eventFromURL: Event | undefined;
+	selectedEvent = upcomingEvents[0];
+	const eventSlug = $page.url.searchParams.get('evento');
 	if (eventSlug) {
-		eventFromURL = upcomingEvents.find((event) => event.slug === eventSlug);
-	}
-	if (eventFromURL) {
-		selectedEvent = eventFromURL;
-	} else {
-		console.error(`Evento '${eventSlug}' no encontrado`);
-		showToast('Evento no encontrado');
-		selectedEvent = upcomingEvents[0];
+		const eventFromURL = upcomingEvents.find((event) => event.slug === eventSlug);
+		if (eventFromURL) {
+			selectedEvent = eventFromURL;
+		} else {
+			console.error(`Evento '${eventSlug}' no encontrado`);
+			showToast('Evento no encontrado');
+		}
 	}
 
 	selectedEvent.isFooterVisible = true;
@@ -386,7 +385,7 @@ https://forms.gle/9vCzbFpu7KfgYGki7`,
 								color="light"
 								on:click={() =>
 									openSocialMediaModal({
-										shareLink: `${SHARE_LINK_BASE}?event=${selectedEvent.slug}`,
+										shareLink: `${SHARE_LINK_BASE}?evento=${selectedEvent.slug}`,
 									})}
 							>
 								<Fa icon={faShare} />
@@ -419,6 +418,10 @@ https://forms.gle/9vCzbFpu7KfgYGki7`,
 							<Button
 								size="sm"
 								color="light"
+								on:click={() =>
+									openSocialMediaModal({
+										shareLink: `${SHARE_LINK_BASE}?evento=${selectedEvent.slug}`,
+									})}
 							>
 								<Fa icon={faShare} />
 								Compartir
@@ -459,7 +462,7 @@ https://forms.gle/9vCzbFpu7KfgYGki7`,
 	/>
 	<meta
 		property="og:url"
-		content={`${SHARE_LINK_BASE}?event=${selectedEvent.slug}`}
+		content={`${SHARE_LINK_BASE}?evento=${selectedEvent.slug}`}
 	/>
 </svelte:head>
 

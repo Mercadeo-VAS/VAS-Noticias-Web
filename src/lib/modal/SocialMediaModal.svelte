@@ -109,7 +109,10 @@
 
 	<ModalFooter>
 		<InputGroup>
-			<Input bind:value={shareLink} />
+			<Input
+				readonly
+				bind:value={shareLink}
+			/>
 			<Button
 				color="primary"
 				on:click={copyLink}>Copiar</Button
