@@ -43,7 +43,7 @@
 	let selectedDates: CalendarDate[] = [];
 	let monthAndYear: string;
 	let didSlideChangeFromEvents = false;
-	let startFly = false;
+	let isDomReady = false;
 
 	const monthNames = [
 		'Enero',
@@ -198,14 +198,18 @@ https://forms.gle/9vCzbFpu7KfgYGki7`,
 	// Get selected Event from the URL event param if indicated
 	selectedEvent = upcomingEvents[0];
 	const eventSlug = $page.url.searchParams.get('evento');
+	let shouldShowToast = false;
 	if (eventSlug) {
 		const eventFromURL = upcomingEvents.find((event) => event.slug === eventSlug);
 		if (eventFromURL) {
 			selectedEvent = eventFromURL;
 		} else {
 			console.error(`Evento '${eventSlug}' no encontrado`);
-			showToast('Evento no encontrado');
+			shouldShowToast = true;
 		}
+	}
+	$: if (shouldShowToast && isDomReady) {
+		showToast('Evento no encontrado');
 	}
 
 	selectedEvent.isFooterVisible = true;
@@ -300,7 +304,7 @@ https://forms.gle/9vCzbFpu7KfgYGki7`,
 		datesSwiper = new Swiper('.dates-swiper', datesSwiperParams);
 		upcomingEventsSwiper = new Swiper('.events-swiper', upcomingEventsSwiperParams);
 
-		startFly = true;
+		isDomReady = true;
 
 		setTimeout(() => {
 			upcomingEventsSwiper.slideTo(selectedEvent.index, EVENTS_SWIPE_SPEED_IN_MS * 2);
@@ -360,7 +364,7 @@ https://forms.gle/9vCzbFpu7KfgYGki7`,
 
 <div
 	class="events-swiper swiper"
-	class:fly-in={startFly}
+	class:fly-in={isDomReady}
 >
 	<div class="swiper-wrapper">
 		{#each upcomingEvents as event, index (index)}
