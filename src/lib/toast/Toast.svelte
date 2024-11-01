@@ -20,15 +20,9 @@
 	<ToastBody>{message}</ToastBody>
 </Toast>
 
-<style lang="scss">
-	:global(:root .toast) {
-		--bs-toast-padding-x: 1rem;
-		--bs-toast-bg: var(--bs-dark);
-		--bs-toast-color: white;
-		--bs-toast-max-width: 240px;
-
-		position: fixed;
-		top: 1rem;
-		right: 1rem;
-	}
-</style>
+<!-- <style lang="scss">
+	/**
+	 * We get the message `No scopable elements found in template.` if we try to style .toast here.
+	 * Moving the styles to `src\styles\_custom-bootstrap.scss`
+	 */
+</style> -->
