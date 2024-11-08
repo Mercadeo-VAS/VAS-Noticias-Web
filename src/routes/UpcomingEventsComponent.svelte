@@ -553,6 +553,10 @@
 <svelte:head>
 	{#if eventSlug}
 		<meta
+			name="description"
+			content={appService.stripHTMLTags(selectedEvent.description)}
+		/>
+		<meta
 			property="og:description"
 			content={appService.stripHTMLTags(selectedEvent.description)}
 		/>
