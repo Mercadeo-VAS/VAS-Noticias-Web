@@ -7,8 +7,9 @@
 	import Swiper from 'swiper/bundle';
 	import type { SwiperOptions } from 'swiper/types';
 
-	import { openSocialMediaModal } from '$lib/modal';
-	import { showToast } from '$lib/toast';
+	import appService from '$lib/appService';
+	import { openSocialMediaModal } from '$lib/components/modal';
+	import { showToast } from '$lib/components/toast';
 	// TODO: *** Change from bundle to the specific modules ***
 	import 'swiper/css/bundle';
 	import '../styles/main.scss';
@@ -551,6 +552,10 @@
 
 <svelte:head>
 	{#if eventSlug}
+		<meta
+			property="og:description"
+			content={appService.stripHTMLTags(selectedEvent.description)}
+		/>
 		<meta
 			property="og:image"
 			content={SHARE_LINK_BASE + selectedEvent.imageLink}
