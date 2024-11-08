@@ -292,10 +292,12 @@
 	// Get selected Event from the URL event param if indicated
 	selectedEvent = upcomingEvents[0];
 	const eventSlug = $page.url.searchParams.get('evento');
+	let ogDescription = '';
 	let shouldShowToast = false;
 	if (eventSlug) {
 		const eventFromURL = upcomingEvents.find((event) => event.slug === eventSlug);
 		if (eventFromURL) {
+			ogDescription = appService.stripHTMLTags(selectedEvent.description);
 			selectedEvent = eventFromURL;
 		} else {
 			console.error(`Evento '${eventSlug}' no encontrado`);
@@ -554,11 +556,11 @@
 	{#if eventSlug}
 		<meta
 			name="description"
-			content={appService.stripHTMLTags(selectedEvent.description)}
+			content={ogDescription}
 		/>
 		<meta
 			property="og:description"
-			content={appService.stripHTMLTags(selectedEvent.description)}
+			content={ogDescription}
 		/>
 		<meta
 			property="og:image"
