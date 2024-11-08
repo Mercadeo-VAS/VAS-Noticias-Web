@@ -366,7 +366,10 @@
 		pagination: {
 			el: '.swiper-pagination',
 		},
-		initialSlide: upcomingEvents.length - 2,
+		initialSlide:
+			selectedEvent.index <= Math.floor(upcomingEvents.length / 2)
+				? upcomingEvents.length - 2
+				: 1,
 		on: {
 			transitionEnd: () => {
 				if (!upcomingEventsSwiper) {
