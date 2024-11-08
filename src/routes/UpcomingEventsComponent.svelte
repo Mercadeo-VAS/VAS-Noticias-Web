@@ -550,18 +550,16 @@
 </div>
 
 <svelte:head>
-	<meta
-		property="og:title"
-		content="VAS Noticias"
-	/>
-	<meta
-		property="og:image"
-		content={SHARE_LINK_BASE + selectedEvent.imageLink}
-	/>
-	<meta
-		property="og:url"
-		content={`${SHARE_LINK_BASE}?evento=${selectedEvent.slug}`}
-	/>
+	{#if eventSlug}
+		<meta
+			property="og:image"
+			content={SHARE_LINK_BASE + selectedEvent.imageLink}
+		/>
+		<meta
+			property="og:url"
+			content={`${SHARE_LINK_BASE}?evento=${selectedEvent.slug}`}
+		/>
+	{/if}
 </svelte:head>
 
 <style lang="scss">
