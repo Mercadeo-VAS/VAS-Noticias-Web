@@ -16,7 +16,7 @@
 	} from '@sveltestrap/sveltestrap';
 	import Fa from 'svelte-fa';
 
-	import { showToast } from '$lib/toast';
+	import { showToast } from '$lib/components/toast';
 
 	export let shareLink = '';
 
