@@ -292,18 +292,11 @@
 	// Get selected Event from the URL event param if indicated
 	selectedEvent = upcomingEvents[0];
 	const eventSlug = $page.url.searchParams.get('evento');
-	let ogDescription =
-		'Entérese de los eventos y noticias más recientes de la iglesia Vida Abundante del Sur.';
-	let ogImageLink = SHARE_LINK_BASE + 'images/og-image.png';
-	let ogURL = SHARE_LINK_BASE;
 	let shouldShowToast = false;
 	if (eventSlug) {
 		const eventFromURL = upcomingEvents.find((event) => event.slug === eventSlug);
 		if (eventFromURL) {
 			selectedEvent = eventFromURL;
-			ogDescription = appService.stripHTMLTags(selectedEvent.description);
-			ogImageLink = SHARE_LINK_BASE + selectedEvent.imageLink;
-			ogURL = `${SHARE_LINK_BASE}?evento=${selectedEvent.slug}`;
 		} else {
 			console.error(`Evento '${eventSlug}' no encontrado`);
 			shouldShowToast = true;
@@ -558,22 +551,20 @@
 </div>
 
 <svelte:head>
-	<meta
-		name="description"
-		content={ogDescription}
-	/>
-	<meta
-		property="og:description"
-		content={ogDescription}
-	/>
-	<meta
-		property="og:image"
-		content={ogImageLink}
-	/>
-	<meta
-		property="og:url"
-		content={ogURL}
-	/>
+	{#if eventSlug}
+		<meta
+			property="og:description"
+			content={appService.stripHTMLTags(selectedEvent.description)}
+		/>
+		<meta
+			property="og:image"
+			content={SHARE_LINK_BASE + selectedEvent.imageLink}
+		/>
+		<meta
+			property="og:url"
+			content="{SHARE_LINK_BASE}?evento={selectedEvent.slug}"
+		/>
+	{/if}
 </svelte:head>
 
 <style lang="scss">

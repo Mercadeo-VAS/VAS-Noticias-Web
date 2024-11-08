@@ -1,9 +1,9 @@
 class AppService {
 	stripHTMLTags(html: string) {
-		const tempDiv = document.createElement('div');
-		tempDiv.innerHTML = html;
-
-		return tempDiv.textContent || tempDiv.innerText || '';
+		return html
+			.replace(/<\/?(div|p|i|span|strong|b)[^>]*>/gi, '') // Remove specified tags
+			.replace(/\s+/g, ' ') // Replace multiple spaces with a single space
+			.trim(); // Trim leading and trailing spaces
 	}
 }
 
