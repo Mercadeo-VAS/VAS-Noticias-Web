@@ -1,14 +1,22 @@
 <script lang="ts">
+	import type { PageData } from './$types';
 	import AnnouncementsComponent from './AnnouncementsComponent.svelte';
 	import Header from './HeaderComponent.svelte';
 	import UpcomingEvents from './UpcomingEventsComponent.svelte';
+
+	export let data: PageData;
+
+	const { eventList, weekList } = data;
 </script>
 
 <main>
 	<Header />
 
 	<section>
-		<UpcomingEvents />
+		<UpcomingEvents
+			{eventList}
+			{weekList}
+		/>
 	</section>
 
 	<section>

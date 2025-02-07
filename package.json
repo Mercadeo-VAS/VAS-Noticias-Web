@@ -38,6 +38,7 @@
 		"bootstrap": "^5.3.3",
 		"svelte-fa": "^4.0.3",
 		"swiper": "^11.2.2",
+		"temporal-polyfill": "^0.2.5",
 		"vite": "^5.4.14"
 	}
 }
