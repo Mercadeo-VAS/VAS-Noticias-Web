@@ -48,10 +48,10 @@ class AppService {
 		eventList: Event[];
 		weekList: Week[];
 	} {
-		// Initialize events with empty calendarDates array
 		const eventList: Event[] = rawEvents.map((event) => ({
 			...event,
-			calendarDates: [],
+			isFlipped: true, // Since we have the event image in the back side, we start flipped.
+			calendarDates: [], // Initialize events with empty calendarDates array
 		}));
 
 		const { earliestDate, latestDate } = this._findEarliestAndLatestDates(eventList);

@@ -182,7 +182,7 @@
 
 <div class="dates-row">
 	<h4 class="month-and-year fade-in">{monthAndYear}</h4>
-	<div class="dates-swiper swiper">
+	<div class="swiper dates-swiper">
 		<div class="swiper-wrapper fade-in">
 			{#each weekList as week}
 				<div class="swiper-slide week">
@@ -230,7 +230,7 @@
 </div>
 
 <div
-	class="events-swiper swiper"
+	class="swiper events-swiper"
 	class:fly-in={isDomReady}
 >
 	<div class="swiper-wrapper">
@@ -239,9 +239,53 @@
 				<div
 					class="card-container"
 					class:flipped={event.isFlipped}
-					class:back-side-visible={event.showBackSide}
+					class:front-side-visible={event.showFrontSide}
 				>
+					<!-- The front side is the text content. Only this way the text can be scrolled. -->
 					<div class="front side">
+						<!-- eslint-disable-next-line svelte/no-at-html-tags -->
+						<div class="content">{@html event.description}</div>
+						<div
+							class="footer"
+							class:visible={event.isFooterVisible}
+						>
+							<Button
+								size="sm"
+								color="light"
+								on:click={() =>
+									openSocialMediaModal({
+										shareLink: `${SHARE_LINK_BASE}?evento=${selectedEvent.slug}`,
+									})}
+							>
+								<Fa icon={faShare} />
+								Compartir
+							</Button>
+							<Button
+								size="sm"
+								color="primary"
+								on:click={() => {
+									event.isFlipped = true;
+									setTimeout(() => {
+										event.showFrontSide = false;
+									}, 1500);
+								}}
+							>
+								Volver
+								<img
+									src="/icons/rotate-180-icon.svg"
+									alt=""
+								/>
+							</Button>
+						</div>
+					</div>
+
+					<div class="front-bg side">
+						<!-- This footer ensures the backface of the other footer is covered with a white background. -->
+						<div class="footer" />
+					</div>
+
+					<!-- The back side is the event image. The card starts flipped. -->
+					<div class="back side">
 						<img
 							class="event-image"
 							src={event.imageLink}
@@ -265,50 +309,12 @@
 							<Button
 								size="sm"
 								color="primary"
-								on:click={() => (event.isFlipped = event.showBackSide = true)}
-							>
-								Ver más detalles
-								<img
-									src="/icons/rotate-180-icon.svg"
-									alt=""
-								/>
-							</Button>
-						</div>
-					</div>
-
-					<div class="back-bg side">
-						<div class="footer" />
-					</div>
-
-					<div class="back side">
-						<!-- eslint-disable-next-line svelte/no-at-html-tags -->
-						<div class="content">{@html event.description}</div>
-						<div
-							class="footer"
-							class:visible={event.isFooterVisible}
-						>
-							<Button
-								size="sm"
-								color="light"
-								on:click={() =>
-									openSocialMediaModal({
-										shareLink: `${SHARE_LINK_BASE}?evento=${selectedEvent.slug}`,
-									})}
-							>
-								<Fa icon={faShare} />
-								Compartir
-							</Button>
-							<Button
-								size="sm"
-								color="primary"
 								on:click={() => {
 									event.isFlipped = false;
-									setTimeout(() => {
-										event.showBackSide = false;
-									}, 1500);
+									event.showFrontSide = true;
 								}}
 							>
-								Volver
+								Ver más detalles
 								<img
 									src="/icons/rotate-180-icon.svg"
 									alt=""
@@ -461,7 +467,7 @@
 			height: 100%;
 
 			&.flipped {
-				transform: rotateY(180deg);
+				transform: rotateY(-180deg);
 			}
 		}
 
@@ -472,45 +478,8 @@
 
 		.front {
 			z-index: 2;
-
-			.event-image {
-				width: 100%;
-				aspect-ratio: 1;
-			}
-
-			.footer {
-				height: $footer-height;
-				background-color: rgba(var(--bs-primary-rgb), 0.15);
-				padding-inline: 0.25rem;
-				display: flex;
-				align-items: center;
-				justify-content: space-between;
-				border-bottom-left-radius: 4px;
-				border-bottom-right-radius: 4px;
-				opacity: 0;
-				transition: opacity 1.5s ease;
-			}
-		}
-
-		.back-bg {
-			z-index: 1;
-			background-color: rgba(255, 255, 255, 0.9);
-			transform: translatez(-0.06px) scale(1.002);
-
-			.footer {
-				width: 100%;
-				height: $footer-height + 2px;
-				position: absolute;
-				bottom: -$footer-height;
-				background-color: white;
-			}
-		}
-
-		.back {
 			display: none;
-			transform: rotateY(180deg);
-			background-color: transparent;
-			transform: translatez(-50px) scale(0.95832) rotateY(180deg);
+			transform: translateZ(50px) scale(0.95832);
 			backface-visibility: hidden;
 
 			.content {
@@ -544,11 +513,48 @@
 			}
 		}
 
+		.front-bg {
+			z-index: 1;
+			background-color: rgba(255, 255, 255, 0.9);
+			transform: translateZ(0.08px) scale(1.003);
+
+			.footer {
+				width: 100%;
+				height: $footer-height + 2px;
+				position: absolute;
+				bottom: -$footer-height;
+				background-color: white;
+			}
+		}
+
+		.back {
+			background-color: transparent;
+			transform: rotateY(180deg);
+
+			.event-image {
+				width: 100%;
+				aspect-ratio: 1;
+			}
+
+			.footer {
+				height: $footer-height;
+				background-color: rgba(var(--bs-primary-rgb), 0.15);
+				padding-inline: 0.25rem;
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				border-bottom-left-radius: 4px;
+				border-bottom-right-radius: 4px;
+				opacity: 0;
+				transition: opacity 1.5s ease;
+			}
+		}
+
 		.footer.visible {
 			opacity: 1;
 		}
 
-		.back-side-visible .back {
+		.front-side-visible .front {
 			display: block;
 		}
 

@@ -8,7 +8,7 @@ export type Event = {
 	description: string;
 	isFooterVisible?: boolean;
 	isFlipped?: boolean;
-	showBackSide?: boolean;
+	showFrontSide?: boolean;
 };
 
 // Type for the dates in the Dates Swiper
