@@ -1,5 +1,9 @@
 $prefix: app-;
 
+:root {
+	--#{$prefix}primary-light: #d9eaf1;
+}
+
 .#{$prefix}container {
 	max-width: $container-width;
 	margin-inline: auto;
@@ -8,4 +12,14 @@ $prefix: app-;
 
 section {
 	margin-top: 2.5rem;
+}
+
+.btn svg {
+	&:first-child {
+		margin-right: 0.125rem;
+	}
+
+	&:last-child {
+		margin-left: 0.125rem;
+	}
 }

@@ -19,3 +19,12 @@ export type CalendarDate = {
 };
 
 export type Week = CalendarDate[];
+
+// Type for the announcements in the Announcements Swiper
+export type Announcement = {
+	index: number;
+	slug: string;
+	imageLink: string;
+	description: string;
+	isSelected?: boolean;
+};

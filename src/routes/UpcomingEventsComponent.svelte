@@ -14,7 +14,6 @@
 	// TODO: *** Change from bundle to the specific modules ***
 	import 'swiper/css/bundle';
 	import { Temporal } from 'temporal-polyfill';
-	import '../styles/main.scss';
 
 	export let eventList: Event[];
 	export let weekList: Week[];
@@ -253,12 +252,12 @@
 								size="sm"
 								color="light"
 								on:click={() =>
-									openSocialMediaModal({
-										shareLink: `${SHARE_LINK_BASE}?evento=${selectedEvent.slug}`,
-									})}
+									openSocialMediaModal(
+										`${SHARE_LINK_BASE}?evento=${selectedEvent.slug}`,
+									)}
 							>
 								<Fa icon={faShare} />
-								Compartir
+								<span>Compartir</span>
 							</Button>
 							<Button
 								size="sm"
@@ -270,7 +269,7 @@
 									}, 1500);
 								}}
 							>
-								Volver
+								<span>Volver</span>
 								<img
 									src="/icons/rotate-180-icon.svg"
 									alt=""
@@ -299,9 +298,9 @@
 								size="sm"
 								color="light"
 								on:click={() =>
-									openSocialMediaModal({
-										shareLink: `${SHARE_LINK_BASE}?evento=${selectedEvent.slug}`,
-									})}
+									openSocialMediaModal(
+										`${SHARE_LINK_BASE}?evento=${selectedEvent.slug}`,
+									)}
 							>
 								<Fa icon={faShare} />
 								Compartir
@@ -538,7 +537,7 @@
 
 			.footer {
 				height: $footer-height;
-				background-color: rgba(var(--bs-primary-rgb), 0.15);
+				background-color: var(--app-primary-light);
 				padding-inline: 0.25rem;
 				display: flex;
 				align-items: center;

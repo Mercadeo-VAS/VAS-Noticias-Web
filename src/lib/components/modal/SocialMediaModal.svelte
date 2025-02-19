@@ -85,7 +85,7 @@
 	fade
 	isOpen={isModalOpen}
 	toggle={() => (isModalOpen = !isModalOpen)}
-	header="Compartir"
+	header="Compartir en"
 >
 	<ModalBody>
 		<div class="social-media">
@@ -115,7 +115,7 @@
 			/>
 			<Button
 				color="primary"
-				on:click={copyLink}>Copiar</Button
+				on:click={copyLink}>Copiar enlace</Button
 			>
 		</InputGroup>
 	</ModalFooter>

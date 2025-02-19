@@ -2,25 +2,27 @@
 	import type { PageData } from './$types';
 	import AnnouncementsComponent from './AnnouncementsComponent.svelte';
 	import Header from './HeaderComponent.svelte';
-	import UpcomingEvents from './UpcomingEventsComponent.svelte';
+	import UpcomingEventsComponent from './UpcomingEventsComponent.svelte';
+
+	import '../styles/main.scss';
 
 	export let data: PageData;
 
-	const { eventList, weekList } = data;
+	const { eventList, weekList, announcementList } = data;
 </script>
 
 <main>
 	<Header />
 
 	<section>
-		<UpcomingEvents
+		<UpcomingEventsComponent
 			{eventList}
 			{weekList}
 		/>
 	</section>
 
 	<section>
-		<AnnouncementsComponent />
+		<AnnouncementsComponent {announcementList} />
 	</section>
 </main>
 
@@ -28,8 +30,10 @@
 	$breakpoint-width: 920px;
 
 	main {
-		margin: 1rem auto;
+		$margin-y: 1rem;
+		margin: $margin-y auto;
 		max-width: 902px;
+		min-height: calc(100dvh - 2 * $margin-y);
 		background-color: white;
 		padding: 2rem min(3rem, 6vw);
 		box-shadow:
