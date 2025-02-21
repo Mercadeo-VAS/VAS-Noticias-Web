@@ -6,17 +6,19 @@
 	import Fa from 'svelte-fa';
 	import Swiper from 'swiper/bundle';
 	import type { SwiperOptions } from 'swiper/types';
+	import { Temporal } from 'temporal-polyfill';
+	import type { PageData } from './$types';
 
 	import appService from '$lib/appService';
-	import type { CalendarDate, Event, Week } from '$lib/appTypes';
+	import type { CalendarDate, Event } from '$lib/appTypes';
 	import { openSocialMediaModal } from '$lib/components/modal';
 	import { showToast } from '$lib/components/toast';
 	// TODO: *** Change from bundle to the specific modules ***
 	import 'swiper/css/bundle';
-	import { Temporal } from 'temporal-polyfill';
 
-	export let eventList: Event[];
-	export let weekList: Week[];
+	export let data: PageData;
+
+	let { eventList, weekList } = data;
 
 	const DATES_SWIPE_SPEED_IN_MS = 1000;
 	const EVENTS_SWIPE_SPEED_IN_MS = 1000;
@@ -177,156 +179,156 @@
 	});
 </script>
 
-<h2>Próximos Eventos</h2>
-
-<div class="dates-row">
-	<h4 class="month-and-year fade-in">{monthAndYear}</h4>
-	<div class="swiper dates-swiper">
-		<div class="swiper-wrapper fade-in">
-			{#each weekList as week}
-				<div class="swiper-slide week">
-					{#each week as calendarDate}
-						{@const date = Temporal.PlainDate.from(calendarDate.dateString)}
-						{@const dayOfTheWeek = abbreviatedDaysOfTheWeek[date.dayOfWeek - 1]}
-						{@const dayNumber = date.day}
-						<div
-							class="date {dayOfTheWeek.toLowerCase()}"
-							class:today={calendarDate.dateString ===
-								Temporal.Now.plainDateISO().toString()}
-							class:selected={selectedCalendarDates.includes(calendarDate)}
-						>
-							<div class="day-of-the-week">
-								{dayOfTheWeek}
-							</div>
-							<div class="day-number-container">
-								<div class="day-number">
-									{#if dayNumber === 1}
-										{abbreviatedMonths[date.month - 1]}
-									{/if}
-									{dayNumber}
+<section class="upcoming-events">
+	<div class="dates-row">
+		<h4 class="month-and-year fade-in">{monthAndYear}</h4>
+		<div class="swiper dates-swiper">
+			<div class="swiper-wrapper fade-in">
+				{#each weekList as week}
+					<div class="swiper-slide week">
+						{#each week as calendarDate}
+							{@const date = Temporal.PlainDate.from(calendarDate.dateString)}
+							{@const dayOfTheWeek = abbreviatedDaysOfTheWeek[date.dayOfWeek - 1]}
+							{@const dayNumber = date.day}
+							<div
+								class="date {dayOfTheWeek.toLowerCase()}"
+								class:today={calendarDate.dateString ===
+									Temporal.Now.plainDateISO().toString()}
+								class:selected={selectedCalendarDates.includes(calendarDate)}
+							>
+								<div class="day-of-the-week">
+									{dayOfTheWeek}
+								</div>
+								<div class="day-number-container">
+									<div class="day-number">
+										{#if dayNumber === 1}
+											{abbreviatedMonths[date.month - 1]}
+										{/if}
+										{dayNumber}
+									</div>
+								</div>
+								<div class="events">
+									{#each calendarDate.events as event}
+										<button
+											class="event"
+											class:selected={event.index === selectedEvent.index}
+											style="background-image: url('{event.imageLink}');"
+											on:click={() =>
+												upcomingEventsSwiper.slideTo(
+													event.index,
+													EVENTS_SWIPE_SPEED_IN_MS,
+												)}
+										></button>
+									{/each}
 								</div>
 							</div>
-							<div class="events">
-								{#each calendarDate.events as event}
-									<button
-										class="event"
-										class:selected={event.index === selectedEvent.index}
-										style="background-image: url('{event.imageLink}');"
-										on:click={() =>
-											upcomingEventsSwiper.slideTo(
-												event.index,
-												EVENTS_SWIPE_SPEED_IN_MS,
-											)}
-									></button>
-								{/each}
+						{/each}
+					</div>
+				{/each}
+			</div>
+		</div>
+	</div>
+
+	<div
+		class="swiper events-swiper"
+		class:fly-in={isDomReady}
+	>
+		<div class="swiper-wrapper">
+			{#each eventList as event, index (index)}
+				<div class="swiper-slide">
+					<div
+						class="card-container"
+						class:flipped={event.isFlipped}
+						class:front-side-visible={event.showFrontSide}
+					>
+						<!-- The front side is the text content. Only this way the text can be scrolled. -->
+						<div class="front side">
+							<!-- eslint-disable-next-line svelte/no-at-html-tags -->
+							<div class="content">{@html event.description}</div>
+							<div
+								class="footer"
+								class:visible={event.isFooterVisible}
+							>
+								<Button
+									size="sm"
+									color="light"
+									on:click={() =>
+										openSocialMediaModal(
+											`${SHARE_LINK_BASE}?evento=${selectedEvent.slug}`,
+										)}
+								>
+									<Fa icon={faShare} />
+									<span>Compartir</span>
+								</Button>
+								<Button
+									size="sm"
+									color="primary"
+									on:click={() => {
+										event.isFlipped = true;
+										setTimeout(() => {
+											event.showFrontSide = false;
+										}, 1500);
+									}}
+								>
+									<span>Volver</span>
+									<img
+										src="/icons/rotate-180-icon.svg"
+										alt=""
+									/>
+								</Button>
 							</div>
 						</div>
-					{/each}
+
+						<div class="front-bg side">
+							<!-- This footer ensures the backface of the other footer is covered with a white background. -->
+							<div class="footer" />
+						</div>
+
+						<!-- The back side is the event image. The card starts flipped. -->
+						<div class="back side">
+							<img
+								class="event-image"
+								src={event.imageLink}
+								alt="Evento"
+							/>
+							<div
+								class="footer"
+								class:visible={event.isFooterVisible}
+							>
+								<Button
+									size="sm"
+									color="light"
+									on:click={() =>
+										openSocialMediaModal(
+											`${SHARE_LINK_BASE}?evento=${selectedEvent.slug}`,
+										)}
+								>
+									<Fa icon={faShare} />
+									Compartir
+								</Button>
+								<Button
+									size="sm"
+									color="primary"
+									on:click={() => {
+										event.isFlipped = false;
+										event.showFrontSide = true;
+									}}
+								>
+									Ver más detalles
+									<img
+										src="/icons/rotate-180-icon.svg"
+										alt=""
+									/>
+								</Button>
+							</div>
+						</div>
+					</div>
 				</div>
 			{/each}
 		</div>
+		<div class="swiper-pagination"></div>
 	</div>
-</div>
-
-<div
-	class="swiper events-swiper"
-	class:fly-in={isDomReady}
->
-	<div class="swiper-wrapper">
-		{#each eventList as event, index (index)}
-			<div class="swiper-slide">
-				<div
-					class="card-container"
-					class:flipped={event.isFlipped}
-					class:front-side-visible={event.showFrontSide}
-				>
-					<!-- The front side is the text content. Only this way the text can be scrolled. -->
-					<div class="front side">
-						<!-- eslint-disable-next-line svelte/no-at-html-tags -->
-						<div class="content">{@html event.description}</div>
-						<div
-							class="footer"
-							class:visible={event.isFooterVisible}
-						>
-							<Button
-								size="sm"
-								color="light"
-								on:click={() =>
-									openSocialMediaModal(
-										`${SHARE_LINK_BASE}?evento=${selectedEvent.slug}`,
-									)}
-							>
-								<Fa icon={faShare} />
-								<span>Compartir</span>
-							</Button>
-							<Button
-								size="sm"
-								color="primary"
-								on:click={() => {
-									event.isFlipped = true;
-									setTimeout(() => {
-										event.showFrontSide = false;
-									}, 1500);
-								}}
-							>
-								<span>Volver</span>
-								<img
-									src="/icons/rotate-180-icon.svg"
-									alt=""
-								/>
-							</Button>
-						</div>
-					</div>
-
-					<div class="front-bg side">
-						<!-- This footer ensures the backface of the other footer is covered with a white background. -->
-						<div class="footer" />
-					</div>
-
-					<!-- The back side is the event image. The card starts flipped. -->
-					<div class="back side">
-						<img
-							class="event-image"
-							src={event.imageLink}
-							alt="Evento"
-						/>
-						<div
-							class="footer"
-							class:visible={event.isFooterVisible}
-						>
-							<Button
-								size="sm"
-								color="light"
-								on:click={() =>
-									openSocialMediaModal(
-										`${SHARE_LINK_BASE}?evento=${selectedEvent.slug}`,
-									)}
-							>
-								<Fa icon={faShare} />
-								Compartir
-							</Button>
-							<Button
-								size="sm"
-								color="primary"
-								on:click={() => {
-									event.isFlipped = false;
-									event.showFrontSide = true;
-								}}
-							>
-								Ver más detalles
-								<img
-									src="/icons/rotate-180-icon.svg"
-									alt=""
-								/>
-							</Button>
-						</div>
-					</div>
-				</div>
-			</div>
-		{/each}
-	</div>
-	<div class="swiper-pagination"></div>
-</div>
+</section>
 
 <svelte:head>
 	{#if eventSlug}
@@ -482,7 +484,7 @@
 			backface-visibility: hidden;
 
 			.content {
-				$padding-bottom: 32px;
+				$padding-bottom: 2rem;
 				padding: 1rem;
 				padding-bottom: $padding-bottom;
 				height: $img-size;

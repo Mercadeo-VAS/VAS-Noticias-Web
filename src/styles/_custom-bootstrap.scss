@@ -1,14 +1,27 @@
 // Core
 $prefix: bs-; // This makes all Bootstrap CSS variables to start with '--bs-' instead of '--app-'.
 
+// Typography
+$font-family-base: 'Roboto';
+$line-height-base: 1;
+$headings-line-height: 1;
+
 // Colors
-$primary: #01719f;
-$secondary: #D3A92D;
-$dark: #575756;
+$primary: #0076aa; //rgb(0, 118, 170);
+$secondary: #f3b122; //rgb(243, 177, 34);
+$dark: #595a5c; //rgb(89, 90, 92);
 $gray-200: #E8F1F8;
 $body-bg: #E9ECF5;
+$body-color: $dark;
+$headings-color: $dark;
 
-:root .toast {
+:root {
+	.btn-sm {
+		--bs-btn-padding-y: 0.5rem;
+		letter-spacing: 0.05em;
+	}
+
+	.toast {
 	--bs-toast-padding-x: 1rem;
 	--bs-toast-bg: var(--bs-dark);
 	--bs-toast-color: white;
@@ -17,4 +30,6 @@ $body-bg: #E9ECF5;
 	position: fixed;
 	top: 1rem;
 	right: 1rem;
+}
+
 }

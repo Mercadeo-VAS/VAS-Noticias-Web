@@ -1,3 +1,8 @@
+export const AppURL = {
+	EVENTOS: '/eventos',
+	ANUNCIOS: '/anuncios',
+} as const;
+
 // Type for the Events in the Events Swiper
 export type Event = {
 	index: number;

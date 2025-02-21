@@ -1,3 +1,7 @@
+<script>
+	import NavbarComponent from '$lib/components/NavbarComponent.svelte';
+</script>
+
 <header>
 	<h1>
 		<img
@@ -8,9 +12,15 @@
 		<span class="primary">VAS</span>
 		<span class="secondary">NOTICIAS</span>
 	</h1>
+
+	<NavbarComponent />
 </header>
 
 <style lang="scss">
+	header {
+		z-index: 1; // Make it appear over the announcements section
+	}
+
 	h1 {
 		font-weight: bold;
 		font-size: min(3rem, 10.8vw);
