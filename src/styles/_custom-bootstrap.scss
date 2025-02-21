@@ -17,8 +17,8 @@ $headings-color: $dark;
 
 :root {
 	.btn-sm {
-		--bs-btn-padding-y: 0.5rem;
 		letter-spacing: 0.05em;
+		min-height: 2rem;
 	}
 
 	.toast {
