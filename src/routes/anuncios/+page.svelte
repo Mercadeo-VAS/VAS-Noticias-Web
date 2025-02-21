@@ -1,66 +1,78 @@
 <script lang="ts">
 	import { faArrowDown, faArrowUp, faShare } from '@fortawesome/free-solid-svg-icons';
 	import { Button } from '@sveltestrap/sveltestrap';
+	import { onMount } from 'svelte';
 	import Fa from 'svelte-fa';
-	import { fade } from 'svelte/transition';
-	import type { PageData } from '../anuncios/$types';
+	import { fade, fly } from 'svelte/transition';
 
+	import type { Announcement } from '$lib/appTypes';
 	import AnimateToCenterComponent from '$lib/components/AnimateToCenterComponent.svelte';
+	import type { PageData } from '../anuncios/$types';
 
 	export let data: PageData;
 
 	const { announcementList } = data;
+
+	let announcements: Announcement[] = [];
+
+	onMount(() => {
+		announcements = announcementList;
+	});
 </script>
 
 <section class="">
 	<div class="sticky-top-scroll-shadow" />
 	<div class="announcements">
-		{#each announcementList as announcement, index (index)}
+		{#each announcements as announcement, index (index)}
 			{@const toggle = () => (announcement.isSelected = !announcement.isSelected)}
-			<AnimateToCenterComponent
-				isSelected={announcement.isSelected}
-				{toggle}
-			>
-				<div class="announcement">
-					<div class="announcement-content">
-						<img
-							src={announcement.imageLink}
-							alt="Anuncio"
-						/>
-						{#if announcement.isSelected}
-							<div
-								class="description"
-								transition:fade={{
-									duration: 500,
-								}}
-							>
-								{@html announcement.description}
-							</div>
-						{/if}
-					</div>
-					<div class="footer">
-						<Button
-							size="sm"
-							color="light"
-						>
-							<Fa icon={faShare} />
-							<span>Compartir</span>
-						</Button>
-						<Button
-							size="sm"
-							color="primary"
-							on:click={toggle}
-						>
-							<span>{announcement.isSelected ? 'Volver' : 'Ver más detalles'}</span>
+			<div in:fly={{ x: 200, duration: 1000, delay: 200 * index }}>
+				<AnimateToCenterComponent
+					isSelected={announcement.isSelected}
+					{toggle}
+				>
+					<div class="announcement">
+						<div class="announcement-content">
+							<img
+								src={announcement.imageLink}
+								alt="Anuncio"
+							/>
 							{#if announcement.isSelected}
-								<Fa icon={faArrowDown} />
-							{:else}
-								<Fa icon={faArrowUp} />
+								<div
+									class="description"
+									transition:fade={{
+										duration: 500,
+									}}
+								>
+									{@html announcement.description}
+								</div>
 							{/if}
-						</Button>
+						</div>
+						<div class="footer">
+							<Button
+								size="sm"
+								color="light"
+							>
+								<Fa icon={faShare} />
+								<span>Compartir</span>
+							</Button>
+							<Button
+								size="sm"
+								color="primary"
+								on:click={toggle}
+							>
+								<span
+									>{announcement.isSelected ? 'Volver' : 'Ver más detalles'}</span
+								>
+								{#if announcement.isSelected}
+									<Fa icon={faArrowDown} />
+								{:else}
+									<Fa icon={faArrowUp} />
+								{/if}
+							</Button>
+						</div>
 					</div>
-				</div>
-			</AnimateToCenterComponent>
+				</AnimateToCenterComponent>
+			</div>
 		{/each}
 	</div>
 	<div class="sticky-bottom-scroll-shadow" />
