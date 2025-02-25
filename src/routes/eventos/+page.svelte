@@ -7,12 +7,13 @@
 	import Swiper from 'swiper/bundle';
 	import type { SwiperOptions } from 'swiper/types';
 	import { Temporal } from 'temporal-polyfill';
-	import type { PageData } from './$types';
 
+	import { env } from '$env/dynamic/public';
 	import appService from '$lib/appService';
 	import type { CalendarDate, Event } from '$lib/appTypes';
 	import { openSocialMediaModal } from '$lib/components/modal';
 	import { showToast } from '$lib/components/toast';
+	import type { PageData } from './$types';
 	// TODO: *** Change from bundle to the specific modules ***
 	import 'swiper/css/bundle';
 
@@ -22,7 +23,6 @@
 
 	const DATES_SWIPE_SPEED_IN_MS = 1000;
 	const EVENTS_SWIPE_SPEED_IN_MS = 1000;
-	const SHARE_LINK_BASE = 'https://vas-noticias.netlify.app/';
 
 	let datesSwiper: Swiper;
 	let upcomingEventsSwiper: Swiper;
@@ -254,7 +254,7 @@
 									color="light"
 									on:click={() =>
 										openSocialMediaModal(
-											`${SHARE_LINK_BASE}?evento=${selectedEvent.slug}`,
+											`${env.PUBLIC_SHARE_LINK_BASE}?evento=${selectedEvent.slug}`,
 										)}
 								>
 									<Fa icon={faShare} />
@@ -300,7 +300,7 @@
 									color="light"
 									on:click={() =>
 										openSocialMediaModal(
-											`${SHARE_LINK_BASE}?evento=${selectedEvent.slug}`,
+											`${env.PUBLIC_SHARE_LINK_BASE}?evento=${selectedEvent.slug}`,
 										)}
 								>
 									<Fa icon={faShare} />
@@ -338,11 +338,11 @@
 		/>
 		<meta
 			property="og:image"
-			content={SHARE_LINK_BASE + selectedEvent.imageLink}
+			content="{env.PUBLIC_SHARE_LINK_BASE}/{selectedEvent.imageLink}"
 		/>
 		<meta
 			property="og:url"
-			content="{SHARE_LINK_BASE}?evento={selectedEvent.slug}"
+			content="{env.PUBLIC_SHARE_LINK_BASE}?evento={selectedEvent.slug}"
 		/>
 	{/if}
 </svelte:head>

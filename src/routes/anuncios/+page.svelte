@@ -5,8 +5,10 @@
 	import Fa from 'svelte-fa';
 	import { fade, fly } from 'svelte/transition';
 
+	import { env } from '$env/dynamic/public';
 	import type { Announcement } from '$lib/appTypes';
 	import AnimateToCenterComponent from '$lib/components/AnimateToCenterComponent.svelte';
+	import { openSocialMediaModal } from '$lib/components/modal';
 	import type { PageData } from '../anuncios/$types';
 
 	export let data: PageData;
@@ -30,27 +32,32 @@
 					isSelected={announcement.isSelected}
 					{toggle}
 				>
-					<div class="announcement">
-						<div class="announcement-content">
-							<img
-								src={announcement.imageLink}
-								alt="Anuncio"
-							/>
-							{#if announcement.isSelected}
-								<div
-									class="description"
-									transition:fade={{
-										duration: 500,
-									}}
-								>
-									{@html announcement.description}
-								</div>
-							{/if}
+					<div
+						class="announcement"
+						class:selected={announcement.isSelected}
+					>
+						<img
+							src={announcement.imageLink}
+							alt="Anuncio"
+						/>
+						<div class="description-container">
+							<div
+								class="description"
+								transition:fade={{
+									duration: 500,
+								}}
+							>
+								{@html announcement.description}
+							</div>
 						</div>
 						<div class="footer">
 							<Button
 								size="sm"
 								color="light"
+								on:click={() =>
+									openSocialMediaModal(
+										`${env.PUBLIC_SHARE_LINK_BASE}?anuncio=${announcement.slug}`,
+									)}
 							>
 								<Fa icon={faShare} />
 								<span>Compartir</span>
@@ -101,6 +108,7 @@
 		background: linear-gradient(transparent, white 90%);
 		position: sticky;
 		bottom: 0;
+		pointer-events: none;
 	}
 
 	.announcements {
@@ -115,11 +123,25 @@
 			aspect-ratio: 1;
 		}
 
+		.description-container {
+			display: grid;
+			grid-template-rows: 0fr;
+			padding: 0;
+			padding-inline: 1rem;
+			transition:
+				grid-template-rows 750ms ease,
+				padding 750ms;
+			background-color: white;
+		}
+
 		.description {
-			aspect-ratio: 1;
-			background-color: rgba(255, 255, 255, 0.94);
+			overflow: hidden;
+			line-height: 1.4;
+		}
+
+		&.selected .description-container {
+			grid-template-rows: 1fr;
 			padding: 1rem;
-			overflow-y: auto;
 		}
 
 		.footer {
@@ -136,15 +158,6 @@
 				width: 1.5rem;
 				margin: -4px -2px -2px 0px;
 			}
-		}
-	}
-
-	.announcement-content {
-		display: grid;
-
-		> * {
-			grid-column: 1;
-			grid-row: 1;
 		}
 	}
 </style>

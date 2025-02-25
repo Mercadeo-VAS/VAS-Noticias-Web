@@ -10,6 +10,7 @@
 	let mounted = false;
 	let element: HTMLElement;
 	let startWidth = 0;
+	let startHeight = 0;
 	let startStyle = '';
 	let transitionStyle = '';
 
@@ -42,16 +43,21 @@
 			return startStyle;
 		}
 
-		const { width, top, left } = element.getBoundingClientRect();
+		const { width, height, top, left } = element.getBoundingClientRect();
 		startWidth = width;
+		startHeight = height;
 
 		startStyle = `
-			position: fixed;
-			width: ${width}px;
-			top: ${top}px;
-			left: ${left}px;
-			z-index: 1001;
-			transition: all ${transitionDurationInMs}ms ease;
+			--overlay-position: fixed;
+			--overlay-width: ${width}px;
+			--overlay-height: ${height}px;
+			--dialog-height: ${height}px;
+			--overlay-start-width: ${startWidth}px;
+			--overlay-start-height: ${startHeight}px;
+			--overlay-top: ${top}px;
+			--overlay-left: ${left}px;
+			--modal-margin: 0;
+			--transition-duration: ${transitionDurationInMs}ms;
 		`;
 
 		return startStyle;
@@ -59,18 +65,23 @@
 
 	function getEndTransitionStyle(): string {
 		return `
-			position: fixed;
-			width: min(${startWidth}px, 90%);
-			top: 50%;
-			left: 50%;
-			transform: translate(-50%, -50%);
-			z-index: 1001;
-			transition: all ${transitionDurationInMs}ms ease;
+			--overlay-position: fixed;
+			--overlay-width: 100%;
+			--overlay-height: 100%;
+			--dialog-height: calc(100dvh - var(--modal-margin) * 2);
+			--overlay-start-width: ${startWidth}px;
+			--overlay-start-height: ${startHeight}px;
+			--overlay-top: 0;
+			--overlay-left: 0;
+			--modal-margin: 2rem;
+			--transition-duration: ${transitionDurationInMs}ms;
 		`;
 	}
 
 	function viewDetails() {
-		disablesBodyScrolling();
+		// While we use `pointer-events: none` on the overlay, there is no need to disable scrolling.
+		//disablesBodyScrolling();
+
 		transitionStyle = getStartTransitionStyle();
 		setTimeout(() => {
 			transitionStyle = getEndTransitionStyle();
@@ -102,30 +113,30 @@
 {#if isSelected}
 	<!-- svelte-ignore a11y-click-events-have-key-events a11y-no-static-element-interactions -->
 	<div
-		class="overlay"
+		class="backdrop"
 		on:click={toggle}
 		transition:fade={{ duration: transitionDurationInMs }}
 	/>
 {/if}
 
 <div
-	class="animate-to-center-wrapper"
-	class:transitioned={transitionStyle}
+	class="animate-to-center-placeholder"
+	style={transitionStyle}
 >
 	<div
+		class="animate-to-center-overlay"
 		bind:this={element}
-		style={transitionStyle}
 	>
-		<slot />
+		<div class="animate-to-center-dialog">
+			<div class="animate-to-center-content">
+				<slot />
+			</div>
+		</div>
 	</div>
 </div>
 
 <style lang="scss">
-	.transitioned {
-		padding-bottom: calc(100% + 40px);
-	}
-
-	.overlay {
+	.backdrop {
 		position: fixed;
 		top: 0;
 		left: 0;
@@ -133,5 +144,35 @@
 		height: 100%;
 		background: rgba(0, 0, 0, 0.8);
 		z-index: 1000;
+	}
+
+	.animate-to-center-placeholder {
+		height: var(--overlay-start-height);
+	}
+
+	.animate-to-center-overlay {
+		position: var(--overlay-position);
+		width: var(--overlay-width);
+		height: var(--overlay-height);
+		top: var(--overlay-top);
+		left: var(--overlay-left);
+		transition: all var(--transition-duration) ease;
+		overflow-x: hidden;
+		overflow-y: auto;
+		z-index: 1001;
+		pointer-events: none;
+	}
+
+	.animate-to-center-dialog {
+		margin-block: var(--modal-margin);
+		margin-inline: auto;
+		transition: all var(--transition-duration) ease;
+		display: flex;
+		justify-content: center;
+	}
+
+	.animate-to-center-content {
+		width: var(--overlay-start-width);
+		pointer-events: auto;
 	}
 </style>

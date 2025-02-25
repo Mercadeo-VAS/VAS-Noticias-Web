@@ -52,6 +52,7 @@
 
 		h2 {
 			margin: 0;
+			font-size: min(1.325rem + 0.9vw, 6vw);
 		}
 	}
 </style>
