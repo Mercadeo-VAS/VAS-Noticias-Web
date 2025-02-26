@@ -7,6 +7,7 @@
 	import { fade, fly } from 'svelte/transition';
 
 	import { env } from '$env/dynamic/public';
+	import appService from '$lib/appService';
 	import type { Announcement } from '$lib/appTypes';
 	import AnimateToCenterComponent from '$lib/components/AnimateToCenterComponent.svelte';
 	import { openSocialMediaModal } from '$lib/components/modal';
@@ -38,7 +39,7 @@
 		}
 	}
 	$: if (shouldShowToast && isDomReady) {
-		showToast('Evento no encontrado');
+		showToast('Anuncio no encontrado');
 	}
 
 	onMount(() => {
@@ -127,6 +128,23 @@
 	</div>
 	<div class="sticky-bottom-scroll-shadow" />
 </section>
+
+<svelte:head>
+	{#if announcementSlug && selectedAnnouncement}
+		<meta
+			property="og:description"
+			content={appService.stripHTMLTags(selectedAnnouncement.description)}
+		/>
+		<meta
+			property="og:image"
+			content="{env.PUBLIC_SHARE_LINK_BASE}/{selectedAnnouncement.imageLink}"
+		/>
+		<meta
+			property="og:url"
+			content="{env.PUBLIC_SHARE_LINK_BASE}/anuncios?anuncio={selectedAnnouncement.slug}"
+		/>
+	{/if}
+</svelte:head>
 
 <style lang="scss">
 	section {

@@ -65,9 +65,10 @@
 	// Get the selected Event from the URL event param if indicated
 	selectedEvent = eventList[0];
 	const eventSlug = page.url.searchParams.get('evento');
+	let eventFromURL: Event | undefined;
 	let shouldShowToast = false;
 	if (eventSlug) {
-		const eventFromURL = eventList.find((event) => event.slug === eventSlug);
+		eventFromURL = eventList.find((event) => event.slug === eventSlug);
 		if (eventFromURL) {
 			selectedEvent = eventFromURL;
 		} else {
@@ -331,7 +332,7 @@
 </section>
 
 <svelte:head>
-	{#if eventSlug}
+	{#if eventSlug && eventFromURL}
 		<meta
 			property="og:description"
 			content={appService.stripHTMLTags(selectedEvent.description)}
@@ -342,7 +343,7 @@
 		/>
 		<meta
 			property="og:url"
-			content="{env.PUBLIC_SHARE_LINK_BASE}?evento={selectedEvent.slug}"
+			content="{env.PUBLIC_SHARE_LINK_BASE}/eventos?evento={selectedEvent.slug}"
 		/>
 	{/if}
 </svelte:head>
