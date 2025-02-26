@@ -17,7 +17,7 @@
 		max-width: 902px;
 		height: calc(100dvh - 2 * $margin-y);
 		background-color: white;
-		padding: 2rem min(3rem, 6vw) 0;
+		padding: min(2rem, 6vw) min(3rem, 6vw) 0;
 		box-shadow:
 			0 10px 15px -3px rgba(0, 0, 0, 0.1),
 			0 4px 6px -2px rgba(0, 0, 0, 0.05);

@@ -23,7 +23,7 @@
 
 	h1 {
 		font-weight: bold;
-		font-size: min(3rem, 10.8vw);
+		font-size: min(3rem, 8vw);
 		display: flex;
 		justify-content: center;
 		align-items: center;
@@ -39,6 +39,6 @@
 	}
 
 	.logo {
-		height: min(4rem, 14vw);
+		height: min(4rem, 11vw);
 	}
 </style>
