@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { page } from '$app/state';
 	import { faArrowDown, faArrowUp, faShare } from '@fortawesome/free-solid-svg-icons';
 	import { Button } from '@sveltestrap/sveltestrap';
 	import { onMount } from 'svelte';
@@ -9,6 +10,7 @@
 	import type { Announcement } from '$lib/appTypes';
 	import AnimateToCenterComponent from '$lib/components/AnimateToCenterComponent.svelte';
 	import { openSocialMediaModal } from '$lib/components/modal';
+	import { showToast } from '$lib/components/toast';
 	import type { PageData } from '../anuncios/$types';
 
 	export let data: PageData;
@@ -16,9 +18,44 @@
 	const { announcementList } = data;
 
 	let announcements: Announcement[] = [];
+	let isDomReady = false;
+	let announcementsFlyDuration = 1000;
+	let announcementsFlyDelay = 200;
+
+	// Get the selected Announcement from the URL announcement param if indicated
+	const announcementSlug = page.url.searchParams.get('anuncio');
+	let selectedAnnouncement: Announcement | undefined;
+	let shouldShowToast = false;
+	if (announcementSlug) {
+		const announcementFromURL = announcementList.find(
+			(announcement) => announcement.slug === announcementSlug,
+		);
+		if (announcementFromURL) {
+			selectedAnnouncement = announcementFromURL;
+		} else {
+			console.error(`Anuncio '${announcementSlug}' no encontrado`);
+			shouldShowToast = true;
+		}
+	}
+	$: if (shouldShowToast && isDomReady) {
+		showToast('Evento no encontrado');
+	}
 
 	onMount(() => {
 		announcements = announcementList;
+		isDomReady = true;
+
+		// Open the selected announcement after all the announcements are transitioned
+		if (selectedAnnouncement) {
+			setTimeout(
+				() => {
+					if (announcements[selectedAnnouncement.index]) {
+						announcements[selectedAnnouncement.index].isSelected = true;
+					}
+				},
+				announcementsFlyDelay * announcements.length + announcementsFlyDuration,
+			);
+		}
 	});
 </script>
 
@@ -27,7 +64,13 @@
 	<div class="announcements">
 		{#each announcements as announcement, index (index)}
 			{@const toggle = () => (announcement.isSelected = !announcement.isSelected)}
-			<div in:fly={{ x: 200, duration: 1000, delay: 200 * index }}>
+			<div
+				in:fly={{
+					x: 200,
+					duration: announcementsFlyDuration,
+					delay: announcementsFlyDelay * index,
+				}}
+			>
 				<AnimateToCenterComponent
 					isSelected={announcement.isSelected}
 					{toggle}
@@ -56,7 +99,7 @@
 								color="light"
 								on:click={() =>
 									openSocialMediaModal(
-										`${env.PUBLIC_SHARE_LINK_BASE}?anuncio=${announcement.slug}`,
+										`${env.PUBLIC_SHARE_LINK_BASE}/anuncios?anuncio=${announcement.slug}`,
 									)}
 							>
 								<Fa icon={faShare} />

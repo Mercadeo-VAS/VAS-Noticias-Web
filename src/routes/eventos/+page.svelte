@@ -62,7 +62,7 @@
 	];
 	const abbreviatedDaysOfTheWeek = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
 
-	// Get selected Event from the URL event param if indicated
+	// Get the selected Event from the URL event param if indicated
 	selectedEvent = eventList[0];
 	const eventSlug = page.url.searchParams.get('evento');
 	let shouldShowToast = false;
@@ -254,7 +254,7 @@
 									color="light"
 									on:click={() =>
 										openSocialMediaModal(
-											`${env.PUBLIC_SHARE_LINK_BASE}?evento=${selectedEvent.slug}`,
+											`${env.PUBLIC_SHARE_LINK_BASE}/eventos?evento=${selectedEvent.slug}`,
 										)}
 								>
 									<Fa icon={faShare} />
@@ -300,7 +300,7 @@
 									color="light"
 									on:click={() =>
 										openSocialMediaModal(
-											`${env.PUBLIC_SHARE_LINK_BASE}?evento=${selectedEvent.slug}`,
+											`${env.PUBLIC_SHARE_LINK_BASE}/eventos?evento=${selectedEvent.slug}`,
 										)}
 								>
 									<Fa icon={faShare} />
