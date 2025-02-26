@@ -332,7 +332,7 @@
 </section>
 
 <svelte:head>
-	{#if eventSlug && eventFromURL}
+	{#if eventSlug && selectedEvent === eventFromURL}
 		<meta
 			property="og:description"
 			content={appService.stripHTMLTags(selectedEvent.description)}
