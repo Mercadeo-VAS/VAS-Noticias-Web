@@ -493,6 +493,7 @@
 				overflow-y: auto;
 				overflow-x: hidden;
 				position: relative;
+				color: rgba(0, 0, 0, 0.85);
 
 				&::after {
 					content: '';
@@ -502,6 +503,15 @@
 					margin-top: auto;
 					background: linear-gradient(transparent, white);
 					transform: translateY(1px);
+				}
+
+				:global(li) {
+					margin-top: 0.25rem;
+				}
+
+				:global(p:has(+ ol)),
+				:global(p:has(+ ul)) {
+					margin-bottom: 0;
 				}
 			}
 

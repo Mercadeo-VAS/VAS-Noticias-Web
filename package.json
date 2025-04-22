@@ -35,6 +35,7 @@
 		"@fortawesome/free-brands-svg-icons": "^6.7.2",
 		"@fortawesome/free-solid-svg-icons": "^6.7.2",
 		"@sveltestrap/sveltestrap": "^7.1.0",
+		"axios": "^1.8.1",
 		"bootstrap": "^5.3.3",
 		"svelte-fa": "^4.0.3",
 		"swiper": "^11.2.2",
