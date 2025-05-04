@@ -1,10 +1,10 @@
 import axios, { AxiosError } from 'axios';
 
-import { env } from '$env/dynamic/public';
+import { PUBLIC_PAYLOAD_BASE_URL } from '$env/static/public';
 
 // Axios instance with default headers
 const payloadApi = axios.create({
-	baseURL: env.PUBLIC_PAYLOAD_BASE_URL,
+	baseURL: PUBLIC_PAYLOAD_BASE_URL,
 });
 
 // Response interceptor
