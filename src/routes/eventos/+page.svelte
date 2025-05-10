@@ -60,7 +60,7 @@
 		'Nov',
 		'Dic',
 	];
-	const abbreviatedDaysOfTheWeek = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+	const abbreviatedDaysOfTheWeek = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
 
 	// Get the selected Event from the URL event param if indicated
 	selectedEvent = eventList[0];
