@@ -6,7 +6,7 @@
 	import Fa from 'svelte-fa';
 	import { fade, fly } from 'svelte/transition';
 
-	import { env } from '$env/dynamic/public';
+	import { PUBLIC_SHARE_LINK_BASE } from '$env/static/public';
 	import appService from '$lib/appService';
 	import type { Announcement } from '$lib/appTypes';
 	import AnimateToCenterComponent from '$lib/components/AnimateToCenterComponent.svelte';
@@ -100,7 +100,7 @@
 								color="light"
 								on:click={() =>
 									openSocialMediaModal(
-										`${env.PUBLIC_SHARE_LINK_BASE}/anuncios?anuncio=${announcement.slug}`,
+										`${PUBLIC_SHARE_LINK_BASE}/anuncios?anuncio=${announcement.slug}`,
 									)}
 							>
 								<Fa icon={faShare} />
@@ -137,11 +137,11 @@
 		/>
 		<meta
 			property="og:image"
-			content="{env.PUBLIC_SHARE_LINK_BASE}/{selectedAnnouncement.imageLink}"
+			content="{PUBLIC_SHARE_LINK_BASE}/{selectedAnnouncement.imageLink}"
 		/>
 		<meta
 			property="og:url"
-			content="{env.PUBLIC_SHARE_LINK_BASE}/anuncios?anuncio={selectedAnnouncement.slug}"
+			content="{PUBLIC_SHARE_LINK_BASE}/anuncios?anuncio={selectedAnnouncement.slug}"
 		/>
 	{/if}
 </svelte:head>

@@ -8,7 +8,7 @@
 	import type { SwiperOptions } from 'swiper/types';
 	import { Temporal } from 'temporal-polyfill';
 
-	import { env } from '$env/dynamic/public';
+	import { PUBLIC_SHARE_LINK_BASE } from '$env/static/public';
 	import appService from '$lib/appService';
 	import type { CalendarDate, Event } from '$lib/appTypes';
 	import { openSocialMediaModal } from '$lib/components/modal';
@@ -255,7 +255,7 @@
 									color="light"
 									on:click={() =>
 										openSocialMediaModal(
-											`${env.PUBLIC_SHARE_LINK_BASE}/eventos?evento=${selectedEvent.slug}`,
+											`${PUBLIC_SHARE_LINK_BASE}/eventos?evento=${selectedEvent.slug}`,
 										)}
 								>
 									<Fa icon={faShare} />
@@ -301,7 +301,7 @@
 									color="light"
 									on:click={() =>
 										openSocialMediaModal(
-											`${env.PUBLIC_SHARE_LINK_BASE}/eventos?evento=${selectedEvent.slug}`,
+											`${PUBLIC_SHARE_LINK_BASE}/eventos?evento=${selectedEvent.slug}`,
 										)}
 								>
 									<Fa icon={faShare} />
@@ -339,11 +339,11 @@
 		/>
 		<meta
 			property="og:image"
-			content="{env.PUBLIC_SHARE_LINK_BASE}/{selectedEvent.imageLink}"
+			content="{PUBLIC_SHARE_LINK_BASE}/{selectedEvent.imageLink}"
 		/>
 		<meta
 			property="og:url"
-			content="{env.PUBLIC_SHARE_LINK_BASE}/eventos?evento={selectedEvent.slug}"
+			content="{PUBLIC_SHARE_LINK_BASE}/eventos?evento={selectedEvent.slug}"
 		/>
 	{/if}
 </svelte:head>
