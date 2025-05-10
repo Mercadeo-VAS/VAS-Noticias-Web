@@ -61,72 +61,83 @@
 </script>
 
 <section class="">
-	<div class="sticky-top-scroll-shadow" />
-	<div class="announcements">
-		{#each announcements as announcement, index (index)}
-			{@const toggle = () => (announcement.isSelected = !announcement.isSelected)}
-			<div
-				in:fly={{
-					x: 200,
-					duration: announcementsFlyDuration,
-					delay: announcementsFlyDelay * index,
-				}}
-			>
-				<AnimateToCenterComponent
-					isSelected={announcement.isSelected}
-					{toggle}
+	{#if announcementList.length}
+		<div class="sticky-top-scroll-shadow" />
+		<div class="announcements">
+			{#each announcements as announcement, index (index)}
+				{@const toggle = () => (announcement.isSelected = !announcement.isSelected)}
+				<div
+					in:fly={{
+						x: 200,
+						duration: announcementsFlyDuration,
+						delay: announcementsFlyDelay * index,
+					}}
 				>
-					<div
-						class="announcement"
-						class:selected={announcement.isSelected}
+					<AnimateToCenterComponent
+						isSelected={announcement.isSelected}
+						{toggle}
 					>
-						<img
-							src={announcement.imageLink}
-							alt="Anuncio"
-						/>
-						<div class="description-container">
-							<div
-								class="description"
-								transition:fade={{
-									duration: 500,
-								}}
-							>
-								{@html announcement.description}
+						<div
+							class="announcement"
+							class:selected={announcement.isSelected}
+						>
+							<img
+								src={announcement.imageLink}
+								alt="Anuncio"
+							/>
+							<div class="description-container">
+								<div
+									class="description"
+									transition:fade={{
+										duration: 500,
+									}}
+								>
+									{@html announcement.description}
+								</div>
+							</div>
+							<div class="footer">
+								<Button
+									size="sm"
+									color="light"
+									on:click={() =>
+										openSocialMediaModal(
+											`${PUBLIC_SHARE_LINK_BASE}/anuncios?anuncio=${announcement.slug}`,
+										)}
+								>
+									<Fa icon={faShare} />
+									<span>Compartir</span>
+								</Button>
+								<Button
+									size="sm"
+									color="primary"
+									on:click={toggle}
+								>
+									<span
+										>{announcement.isSelected
+											? 'Volver'
+											: 'Ver más detalles'}</span
+									>
+									{#if announcement.isSelected}
+										<Fa icon={faArrowDown} />
+									{:else}
+										<Fa icon={faArrowUp} />
+									{/if}
+								</Button>
 							</div>
 						</div>
-						<div class="footer">
-							<Button
-								size="sm"
-								color="light"
-								on:click={() =>
-									openSocialMediaModal(
-										`${PUBLIC_SHARE_LINK_BASE}/anuncios?anuncio=${announcement.slug}`,
-									)}
-							>
-								<Fa icon={faShare} />
-								<span>Compartir</span>
-							</Button>
-							<Button
-								size="sm"
-								color="primary"
-								on:click={toggle}
-							>
-								<span
-									>{announcement.isSelected ? 'Volver' : 'Ver más detalles'}</span
-								>
-								{#if announcement.isSelected}
-									<Fa icon={faArrowDown} />
-								{:else}
-									<Fa icon={faArrowUp} />
-								{/if}
-							</Button>
-						</div>
-					</div>
-				</AnimateToCenterComponent>
+					</AnimateToCenterComponent>
+				</div>
+			{/each}
+		</div>
+		<div class="sticky-bottom-scroll-shadow" />
+	{:else}
+		<div class="no-announcements-container">
+			<div class="no-announcements-message">
+				No hay anuncios esta semana. <br />A veces, no hay noticias… <br />¡y eso también es
+				buena noticia!
 			</div>
-		{/each}
-	</div>
-	<div class="sticky-bottom-scroll-shadow" />
+		</div>
+	{/if}
 </section>
 
 <svelte:head>
@@ -219,6 +230,19 @@
 				width: 1.5rem;
 				margin: -4px -2px -2px 0px;
 			}
+		}
+	}
+
+	.no-announcements-container {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		padding: 6rem 2rem;
+		text-align: center;
+
+		.no-announcements-message {
+			font-size: 1.5rem;
+			line-height: 1.4;
 		}
 	}
 </style>
