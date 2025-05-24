@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { page } from '$app/state';
-	import { faArrowDown, faArrowUp, faShare } from '@fortawesome/free-solid-svg-icons';
-	import { Button } from '@sveltestrap/sveltestrap';
+	import { faArrowDown, faArrowUp, faShare, faInfo } from '@fortawesome/free-solid-svg-icons';
+	import { Button, Card } from '@sveltestrap/sveltestrap';
 	import { onMount } from 'svelte';
 	import Fa from 'svelte-fa';
 	import { fade, fly } from 'svelte/transition';
@@ -132,10 +132,23 @@
 		<div class="sticky-bottom-scroll-shadow" />
 	{:else}
 		<div class="no-announcements-container">
-			<div class="no-announcements-message">
-				No hay anuncios esta semana. <br />A veces, no hay noticias… <br />¡y eso también es
-				buena noticia!
-			</div>
+			<div class="no-announcements-message">No hay anuncios esta semana.</div>
+			<Card class="text-center">
+				<div class="card-header">
+					<div class="icon-ring">
+						<Fa
+							icon={faInfo}
+							size="xs"
+						/>
+					</div>
+					<h6>¿Qué son los anuncios?</h6>
+				</div>
+				<div class="card-body">
+					Los anuncios son comunicados que no tienen fecha ni hora. A diferencia de los
+					eventos, no ocurren en un momento específico. Por ejemplo, un anuncio de un
+					ministerio que invita a unirse a su ministerio.
+				</div>
+			</Card>
 		</div>
 	{/if}
 </section>
@@ -235,6 +248,8 @@
 
 	.no-announcements-container {
 		display: flex;
+		flex-direction: column;
+		gap: 3rem;
 		justify-content: center;
 		align-items: center;
 		padding: 6rem 2rem;
@@ -243,6 +258,46 @@
 		.no-announcements-message {
 			font-size: 1.5rem;
 			line-height: 1.4;
+		}
+
+		:global(.card) {
+			background-color: white;
+			max-width: 380px;
+		}
+
+		.card-header {
+			display: flex;
+			align-items: center;
+			gap: 0.5rem;
+			padding: 1rem;
+			border: none;
+		}
+
+		.card-body {
+			padding-top: 0;
+			text-align: left;
+			line-height: 1.4;
+			color: var(--bs-gray);
+		}
+
+		.icon-ring {
+			display: inline-block;
+			height: 1.25rem;
+			aspect-ratio: 1;
+			color: var(--bs-primary);
+			border: 1.5px solid var(--bs-primary);
+			border-radius: 100vmax;
+
+			:global(svg) {
+				margin-left: 1px;
+				margin-bottom: 1px;
+			}
+		}
+
+		h6 {
+			margin: 0;
+			color: var(--bs-primary);
+			font-weight: normal;
 		}
 	}
 </style>
