@@ -261,7 +261,7 @@
 		}
 
 		:global(.card) {
-			background-color: white;
+			background-color: var(--bs-white);
 			max-width: 380px;
 		}
 
@@ -271,6 +271,7 @@
 			gap: 0.5rem;
 			padding: 1rem;
 			border: none;
+			background-color: var(--bs-white);
 		}
 
 		.card-body {
