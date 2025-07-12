@@ -11,6 +11,7 @@
 	import { PUBLIC_SHARE_LINK_BASE } from '$env/static/public';
 	import appService from '$lib/appService';
 	import type { CalendarDate, Event } from '$lib/appTypes';
+	import NoContentPlaceholderComponent from '$lib/components/NoContentPlaceholderComponent.svelte';
 	import { openSocialMediaModal } from '$lib/components/modal';
 	import { showToast } from '$lib/components/toast';
 	import type { PageData } from './$types';
@@ -24,11 +25,16 @@
 	const DATES_SWIPE_SPEED_IN_MS = 1000;
 	const EVENTS_SWIPE_SPEED_IN_MS = 1000;
 
-	let datesSwiper: Swiper;
-	let upcomingEventsSwiper: Swiper;
 	let selectedEvent: Event;
+	let eventSlug: string | null = null;
+	let eventFromURL: Event | undefined;
 	let selectedCalendarDates: CalendarDate[] = [];
+	let shouldShowToast = false;
 	let monthAndYear: string;
+	let datesSwiper: Swiper;
+	let datesSwiperParams: SwiperOptions;
+	let upcomingEventsSwiper: Swiper;
+	let upcomingEventsSwiperParams: SwiperOptions;
 	let didSlideChangeFromEvents = false;
 	let isDomReady = false;
 
@@ -62,53 +68,103 @@
 	];
 	const abbreviatedDaysOfTheWeek = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
 
-	// Get the selected Event from the URL event param if indicated
-	selectedEvent = eventList[0];
-	const eventSlug = page.url.searchParams.get('evento');
-	let eventFromURL: Event | undefined;
-	let shouldShowToast = false;
-	if (eventSlug) {
-		eventFromURL = eventList.find((event) => event.slug === eventSlug);
-		if (eventFromURL) {
-			selectedEvent = eventFromURL;
-		} else {
-			console.error(`Evento '${eventSlug}' no encontrado`);
-			shouldShowToast = true;
+	if (eventList.length) {
+		// Get the selected Event from the URL event param if indicated
+		selectedEvent = eventList[0];
+		eventSlug = page.url.searchParams.get('evento');
+		if (eventSlug) {
+			eventFromURL = eventList.find((event) => event.slug === eventSlug);
+			if (eventFromURL) {
+				selectedEvent = eventFromURL;
+			} else {
+				console.error(`Evento '${eventSlug}' no encontrado`);
+				shouldShowToast = true;
+			}
 		}
+
+		selectedEvent.isFooterVisible = true;
+		selectedCalendarDates = selectedEvent.calendarDates!;
+
+		// Get the first day of the selected week
+		const weekIndex = selectedCalendarDates[0].weekIndex;
+		const firstCalendarDateOfTheWeek = weekList[weekIndex][0];
+		monthAndYear = getMonthAndYearString(firstCalendarDateOfTheWeek);
+
+		datesSwiperParams = {
+			grabCursor: true,
+			centeredSlides: true,
+			slidesPerView: 'auto',
+			spaceBetween: 0,
+			on: {
+				transitionEnd: (swiper) => {
+					if (!datesSwiper || didSlideChangeFromEvents) {
+						didSlideChangeFromEvents = false;
+						return;
+					}
+
+					const firstCalendarDateOfTheWeek = weekList[swiper.activeIndex][0];
+					monthAndYear = getMonthAndYearString(firstCalendarDateOfTheWeek);
+				},
+			},
+		};
+
+		upcomingEventsSwiperParams = {
+			effect: 'coverflow',
+			grabCursor: true,
+			centeredSlides: true,
+			slidesPerView: 'auto',
+			slideToClickedSlide: true,
+			touchReleaseOnEdges: true,
+			coverflowEffect: {
+				rotate: 50,
+				stretch: 0,
+				depth: 100,
+				modifier: 1,
+				slideShadows: true,
+			},
+			pagination: {
+				el: '.swiper-pagination',
+			},
+			initialSlide:
+				selectedEvent.index <= Math.floor(eventList.length / 2) ? eventList.length - 2 : 1,
+			on: {
+				transitionEnd: () => {
+					if (!upcomingEventsSwiper) {
+						return;
+					}
+
+					selectedEvent = eventList[upcomingEventsSwiper.activeIndex];
+					selectedCalendarDates = selectedEvent.calendarDates!;
+					monthAndYear = getMonthAndYearString(selectedCalendarDates[0]);
+					didSlideChangeFromEvents = true;
+
+					datesSwiper.slideToLoop(
+						selectedCalendarDates[0].weekIndex,
+						DATES_SWIPE_SPEED_IN_MS,
+					);
+
+					// Show the event footer after a delay
+					eventFooterVisibilityTimeout = setTimeout(() => {
+						selectedEvent.isFooterVisible = true;
+
+						// Force Svelte reactivity
+						eventList = eventList;
+					}, 500);
+				},
+				sliderFirstMove: hideEventFooter,
+				slideChangeTransitionStart: hideEventFooter,
+			},
+		};
 	}
+
 	$: if (shouldShowToast && isDomReady) {
 		showToast('Evento no encontrado');
 	}
 
-	selectedEvent.isFooterVisible = true;
-	selectedCalendarDates = selectedEvent.calendarDates!;
-
-	// Get the first day of the selected week
 	function getMonthAndYearString(calendarDate: CalendarDate) {
 		const date = Temporal.PlainDate.from(calendarDate.dateString);
 		return `${monthNames[date.month - 1]} ${date.year}`;
 	}
-	const weekIndex = selectedCalendarDates[0].weekIndex;
-	const firstCalendarDateOfTheWeek = weekList[weekIndex][0];
-	monthAndYear = getMonthAndYearString(firstCalendarDateOfTheWeek);
-
-	const datesSwiperParams: SwiperOptions = {
-		grabCursor: true,
-		centeredSlides: true,
-		slidesPerView: 'auto',
-		spaceBetween: 0,
-		on: {
-			transitionEnd: (swiper) => {
-				if (!datesSwiper || didSlideChangeFromEvents) {
-					didSlideChangeFromEvents = false;
-					return;
-				}
-
-				const firstCalendarDateOfTheWeek = weekList[swiper.activeIndex][0];
-				monthAndYear = getMonthAndYearString(firstCalendarDateOfTheWeek);
-			},
-		},
-	};
 
 	let eventFooterVisibilityTimeout: ReturnType<typeof setTimeout>;
 
@@ -120,55 +176,11 @@
 		eventList = eventList;
 	}
 
-	const upcomingEventsSwiperParams: SwiperOptions = {
-		effect: 'coverflow',
-		grabCursor: true,
-		centeredSlides: true,
-		slidesPerView: 'auto',
-		slideToClickedSlide: true,
-		touchReleaseOnEdges: true,
-		coverflowEffect: {
-			rotate: 50,
-			stretch: 0,
-			depth: 100,
-			modifier: 1,
-			slideShadows: true,
-		},
-		pagination: {
-			el: '.swiper-pagination',
-		},
-		initialSlide:
-			selectedEvent.index <= Math.floor(eventList.length / 2) ? eventList.length - 2 : 1,
-		on: {
-			transitionEnd: () => {
-				if (!upcomingEventsSwiper) {
-					return;
-				}
-
-				selectedEvent = eventList[upcomingEventsSwiper.activeIndex];
-				selectedCalendarDates = selectedEvent.calendarDates!;
-				monthAndYear = getMonthAndYearString(selectedCalendarDates[0]);
-				didSlideChangeFromEvents = true;
-
-				datesSwiper.slideToLoop(
-					selectedCalendarDates[0].weekIndex,
-					DATES_SWIPE_SPEED_IN_MS,
-				);
-
-				// Show the event footer after a delay
-				eventFooterVisibilityTimeout = setTimeout(() => {
-					selectedEvent.isFooterVisible = true;
-
-					// Force Svelte reactivity
-					eventList = eventList;
-				}, 500);
-			},
-			sliderFirstMove: hideEventFooter,
-			slideChangeTransitionStart: hideEventFooter,
-		},
-	};
-
 	onMount(async () => {
+		if (!eventList.length) {
+			return;
+		}
+
 		datesSwiper = new Swiper('.dates-swiper', datesSwiperParams);
 		upcomingEventsSwiper = new Swiper('.events-swiper', upcomingEventsSwiperParams);
 
@@ -180,155 +192,163 @@
 	});
 </script>
 
-<section class="upcoming-events">
-	<div class="dates-row">
-		<h4 class="month-and-year fade-in">{monthAndYear}</h4>
-		<div class="swiper dates-swiper">
-			<div class="swiper-wrapper fade-in">
-				{#each weekList as week}
-					<div class="swiper-slide week">
-						{#each week as calendarDate}
-							{@const date = Temporal.PlainDate.from(calendarDate.dateString)}
-							{@const dayOfTheWeek = abbreviatedDaysOfTheWeek[date.dayOfWeek - 1]}
-							{@const dayNumber = date.day}
-							<div
-								class="date {dayOfTheWeek.toLowerCase()}"
-								class:today={calendarDate.dateString ===
-									Temporal.Now.plainDateISO().toString()}
-								class:selected={selectedCalendarDates.includes(calendarDate)}
-							>
-								<div class="day-of-the-week">
-									{dayOfTheWeek}
-								</div>
-								<div class="day-number-container">
-									<div class="day-number">
-										{#if dayNumber === 1}
-											{abbreviatedMonths[date.month - 1]}
-										{/if}
-										{dayNumber}
+<section>
+	{#if eventList.length}
+		<div class="dates-row">
+			<h4 class="month-and-year fade-in">{monthAndYear}</h4>
+			<div class="swiper dates-swiper">
+				<div class="swiper-wrapper fade-in">
+					{#each weekList as week}
+						<div class="swiper-slide week">
+							{#each week as calendarDate}
+								{@const date = Temporal.PlainDate.from(calendarDate.dateString)}
+								{@const dayOfTheWeek = abbreviatedDaysOfTheWeek[date.dayOfWeek - 1]}
+								{@const dayNumber = date.day}
+								<div
+									class="date {dayOfTheWeek.toLowerCase()}"
+									class:today={calendarDate.dateString ===
+										Temporal.Now.plainDateISO().toString()}
+									class:selected={selectedCalendarDates.includes(calendarDate)}
+								>
+									<div class="day-of-the-week">
+										{dayOfTheWeek}
+									</div>
+									<div class="day-number-container">
+										<div class="day-number">
+											{#if dayNumber === 1}
+												{abbreviatedMonths[date.month - 1]}
+											{/if}
+											{dayNumber}
+										</div>
+									</div>
+									<div class="events">
+										{#each calendarDate.events as event}
+											<button
+												class="event"
+												class:selected={event.index === selectedEvent.index}
+												style="background-image: url('{event.imageLink}');"
+												on:click={() =>
+													upcomingEventsSwiper.slideTo(
+														event.index,
+														EVENTS_SWIPE_SPEED_IN_MS,
+													)}
+											></button>
+										{/each}
 									</div>
 								</div>
-								<div class="events">
-									{#each calendarDate.events as event}
-										<button
-											class="event"
-											class:selected={event.index === selectedEvent.index}
-											style="background-image: url('{event.imageLink}');"
-											on:click={() =>
-												upcomingEventsSwiper.slideTo(
-													event.index,
-													EVENTS_SWIPE_SPEED_IN_MS,
-												)}
-										></button>
-									{/each}
+							{/each}
+						</div>
+					{/each}
+				</div>
+			</div>
+		</div>
+
+		<div
+			class="swiper events-swiper"
+			class:fly-in={isDomReady}
+		>
+			<div class="swiper-wrapper">
+				{#each eventList as event, index (index)}
+					<div class="swiper-slide">
+						<div
+							class="card-container"
+							class:flipped={event.isFlipped}
+							class:front-side-visible={event.showFrontSide}
+						>
+							<!-- The front side is the text content. Only this way the text can be scrolled. -->
+							<div class="front side">
+								<!-- eslint-disable-next-line svelte/no-at-html-tags -->
+								<div class="content">{@html event.description}</div>
+								<div
+									class="footer"
+									class:visible={event.isFooterVisible}
+								>
+									<Button
+										size="sm"
+										color="light"
+										on:click={() =>
+											openSocialMediaModal(
+												`${PUBLIC_SHARE_LINK_BASE}/eventos?evento=${selectedEvent.slug}`,
+											)}
+									>
+										<Fa icon={faShare} />
+										<span>Compartir</span>
+									</Button>
+									<Button
+										size="sm"
+										color="primary"
+										on:click={() => {
+											event.isFlipped = true;
+											setTimeout(() => {
+												event.showFrontSide = false;
+											}, 1500);
+										}}
+									>
+										<span>Volver</span>
+										<img
+											src="/icons/rotate-180-icon.svg"
+											alt=""
+										/>
+									</Button>
 								</div>
 							</div>
-						{/each}
+
+							<div class="front-bg side">
+								<!-- This footer ensures the backface of the other footer is covered with a white background. -->
+								<div class="footer" />
+							</div>
+
+							<!-- The back side is the event image. The card starts flipped. -->
+							<div class="back side">
+								<img
+									class="event-image"
+									src={event.imageLink}
+									alt="Evento"
+								/>
+								<div
+									class="footer"
+									class:visible={event.isFooterVisible}
+								>
+									<Button
+										size="sm"
+										color="light"
+										on:click={() =>
+											openSocialMediaModal(
+												`${PUBLIC_SHARE_LINK_BASE}/eventos?evento=${selectedEvent.slug}`,
+											)}
+									>
+										<Fa icon={faShare} />
+										Compartir
+									</Button>
+									<Button
+										size="sm"
+										color="primary"
+										on:click={() => {
+											event.isFlipped = false;
+											event.showFrontSide = true;
+										}}
+									>
+										Ver más detalles
+										<img
+											src="/icons/rotate-180-icon.svg"
+											alt=""
+										/>
+									</Button>
+								</div>
+							</div>
+						</div>
 					</div>
 				{/each}
 			</div>
+			<div class="swiper-pagination"></div>
 		</div>
-	</div>
-
-	<div
-		class="swiper events-swiper"
-		class:fly-in={isDomReady}
-	>
-		<div class="swiper-wrapper">
-			{#each eventList as event, index (index)}
-				<div class="swiper-slide">
-					<div
-						class="card-container"
-						class:flipped={event.isFlipped}
-						class:front-side-visible={event.showFrontSide}
-					>
-						<!-- The front side is the text content. Only this way the text can be scrolled. -->
-						<div class="front side">
-							<!-- eslint-disable-next-line svelte/no-at-html-tags -->
-							<div class="content">{@html event.description}</div>
-							<div
-								class="footer"
-								class:visible={event.isFooterVisible}
-							>
-								<Button
-									size="sm"
-									color="light"
-									on:click={() =>
-										openSocialMediaModal(
-											`${PUBLIC_SHARE_LINK_BASE}/eventos?evento=${selectedEvent.slug}`,
-										)}
-								>
-									<Fa icon={faShare} />
-									<span>Compartir</span>
-								</Button>
-								<Button
-									size="sm"
-									color="primary"
-									on:click={() => {
-										event.isFlipped = true;
-										setTimeout(() => {
-											event.showFrontSide = false;
-										}, 1500);
-									}}
-								>
-									<span>Volver</span>
-									<img
-										src="/icons/rotate-180-icon.svg"
-										alt=""
-									/>
-								</Button>
-							</div>
-						</div>
-
-						<div class="front-bg side">
-							<!-- This footer ensures the backface of the other footer is covered with a white background. -->
-							<div class="footer" />
-						</div>
-
-						<!-- The back side is the event image. The card starts flipped. -->
-						<div class="back side">
-							<img
-								class="event-image"
-								src={event.imageLink}
-								alt="Evento"
-							/>
-							<div
-								class="footer"
-								class:visible={event.isFooterVisible}
-							>
-								<Button
-									size="sm"
-									color="light"
-									on:click={() =>
-										openSocialMediaModal(
-											`${PUBLIC_SHARE_LINK_BASE}/eventos?evento=${selectedEvent.slug}`,
-										)}
-								>
-									<Fa icon={faShare} />
-									Compartir
-								</Button>
-								<Button
-									size="sm"
-									color="primary"
-									on:click={() => {
-										event.isFlipped = false;
-										event.showFrontSide = true;
-									}}
-								>
-									Ver más detalles
-									<img
-										src="/icons/rotate-180-icon.svg"
-										alt=""
-									/>
-								</Button>
-							</div>
-						</div>
-					</div>
-				</div>
-			{/each}
-		</div>
-		<div class="swiper-pagination"></div>
-	</div>
+	{:else}
+		<NoContentPlaceholderComponent
+			message="No hay eventos esta semana."
+			cardTitle="¿Qué son los eventos?"
+			cardDescription="Los eventos son actividades programadas que ocurren en fechas y horarios específicos. Estos incluyen servicios, reuniones, talleres y otras actividades de la iglesia que tienen un momento determinado para llevarse a cabo."
+		/>
+	{/if}
 </section>
 
 <svelte:head>

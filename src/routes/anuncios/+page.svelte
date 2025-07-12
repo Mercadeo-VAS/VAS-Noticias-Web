@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { page } from '$app/state';
-	import { faArrowDown, faArrowUp, faShare, faInfo } from '@fortawesome/free-solid-svg-icons';
-	import { Button, Card } from '@sveltestrap/sveltestrap';
+	import { faArrowDown, faArrowUp, faShare } from '@fortawesome/free-solid-svg-icons';
+	import { Button } from '@sveltestrap/sveltestrap';
 	import { onMount } from 'svelte';
 	import Fa from 'svelte-fa';
 	import { fade, fly } from 'svelte/transition';
@@ -10,6 +10,7 @@
 	import appService from '$lib/appService';
 	import type { Announcement } from '$lib/appTypes';
 	import AnimateToCenterComponent from '$lib/components/AnimateToCenterComponent.svelte';
+	import NoContentPlaceholderComponent from '$lib/components/NoContentPlaceholderComponent.svelte';
 	import { openSocialMediaModal } from '$lib/components/modal';
 	import { showToast } from '$lib/components/toast';
 	import type { PageData } from '../anuncios/$types';
@@ -60,96 +61,84 @@
 	});
 </script>
 
-<section class="">
+<section>
 	{#if announcementList.length}
-		<div class="sticky-top-scroll-shadow" />
-		<div class="announcements">
-			{#each announcements as announcement, index (index)}
-				{@const toggle = () => (announcement.isSelected = !announcement.isSelected)}
-				<div
-					in:fly={{
-						x: 200,
-						duration: announcementsFlyDuration,
-						delay: announcementsFlyDelay * index,
-					}}
-				>
-					<AnimateToCenterComponent
-						isSelected={announcement.isSelected}
-						{toggle}
+		<div class="announcements-wrapper">
+			<div class="sticky-top-scroll-shadow" />
+			<div class="announcements">
+				{#each announcements as announcement, index (index)}
+					{@const toggle = () => (announcement.isSelected = !announcement.isSelected)}
+					<div
+						in:fly={{
+							x: 200,
+							duration: announcementsFlyDuration,
+							delay: announcementsFlyDelay * index,
+						}}
 					>
-						<div
-							class="announcement"
-							class:selected={announcement.isSelected}
+						<AnimateToCenterComponent
+							isSelected={announcement.isSelected}
+							{toggle}
 						>
-							<img
-								src={announcement.imageLink}
-								alt="Anuncio"
-							/>
-							<div class="description-container">
-								<div
-									class="description"
-									transition:fade={{
-										duration: 500,
-									}}
-								>
-									{@html announcement.description}
+							<div
+								class="announcement"
+								class:selected={announcement.isSelected}
+							>
+								<img
+									src={announcement.imageLink}
+									alt="Anuncio"
+								/>
+								<div class="description-container">
+									<div
+										class="description"
+										transition:fade={{
+											duration: 500,
+										}}
+									>
+										{@html announcement.description}
+									</div>
+								</div>
+								<div class="footer">
+									<Button
+										size="sm"
+										color="light"
+										on:click={() =>
+											openSocialMediaModal(
+												`${PUBLIC_SHARE_LINK_BASE}/anuncios?anuncio=${announcement.slug}`,
+											)}
+									>
+										<Fa icon={faShare} />
+										<span>Compartir</span>
+									</Button>
+									<Button
+										size="sm"
+										color="primary"
+										on:click={toggle}
+									>
+										<span
+											>{announcement.isSelected
+												? 'Volver'
+												: 'Ver más detalles'}</span
+										>
+										{#if announcement.isSelected}
+											<Fa icon={faArrowDown} />
+										{:else}
+											<Fa icon={faArrowUp} />
+										{/if}
+									</Button>
 								</div>
 							</div>
-							<div class="footer">
-								<Button
-									size="sm"
-									color="light"
-									on:click={() =>
-										openSocialMediaModal(
-											`${PUBLIC_SHARE_LINK_BASE}/anuncios?anuncio=${announcement.slug}`,
-										)}
-								>
-									<Fa icon={faShare} />
-									<span>Compartir</span>
-								</Button>
-								<Button
-									size="sm"
-									color="primary"
-									on:click={toggle}
-								>
-									<span
-										>{announcement.isSelected
-											? 'Volver'
-											: 'Ver más detalles'}</span
-									>
-									{#if announcement.isSelected}
-										<Fa icon={faArrowDown} />
-									{:else}
-										<Fa icon={faArrowUp} />
-									{/if}
-								</Button>
-							</div>
-						</div>
-					</AnimateToCenterComponent>
-				</div>
-			{/each}
-		</div>
-		<div class="sticky-bottom-scroll-shadow" />
-	{:else}
-		<div class="no-announcements-container">
-			<div class="no-announcements-message">No hay anuncios esta semana.</div>
-			<Card class="text-center">
-				<div class="card-header">
-					<div class="icon-ring">
-						<Fa
-							icon={faInfo}
-							size="xs"
-						/>
+						</AnimateToCenterComponent>
 					</div>
-					<h6>¿Qué son los anuncios?</h6>
-				</div>
-				<div class="card-body">
-					Los anuncios son comunicados que no tienen fecha ni hora. A diferencia de los
-					eventos, no ocurren en un momento específico. Por ejemplo, un anuncio de un
-					ministerio que invita a unirse a su ministerio.
-				</div>
-			</Card>
+				{/each}
+			</div>
+			<div class="sticky-bottom-scroll-shadow" />
 		</div>
+	{:else}
+		<NoContentPlaceholderComponent
+			message="No hay anuncios esta semana."
+			cardTitle="¿Qué son los anuncios?"
+			cardDescription="Los anuncios son comunicados que no tienen fecha ni hora. A diferencia de los eventos, no ocurren en un momento específico. Por ejemplo, un anuncio de un ministerio que invita a unirse a su ministerio."
+		/>
 	{/if}
 </section>
 
@@ -173,6 +162,9 @@
 <style lang="scss">
 	section {
 		flex: 1;
+	}
+
+	.announcements-wrapper {
 		margin-inline: max(-3rem, -6vw);
 		padding-inline: min(3rem, 6vw);
 		overflow-y: auto;
@@ -200,6 +192,10 @@
 		display: grid;
 		grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
 		gap: 1.5rem;
+
+		@media (min-width: 769px) {
+			grid-template-columns: repeat(auto-fit, minmax(300px, 0.5fr));
+		}
 	}
 
 	.announcement {
@@ -243,62 +239,6 @@
 				width: 1.5rem;
 				margin: -4px -2px -2px 0px;
 			}
-		}
-	}
-
-	.no-announcements-container {
-		display: flex;
-		flex-direction: column;
-		gap: 3rem;
-		justify-content: center;
-		align-items: center;
-		padding: 6rem 2rem;
-		text-align: center;
-
-		.no-announcements-message {
-			font-size: 1.5rem;
-			line-height: 1.4;
-		}
-
-		:global(.card) {
-			background-color: var(--bs-white);
-			max-width: 380px;
-		}
-
-		.card-header {
-			display: flex;
-			align-items: center;
-			gap: 0.5rem;
-			padding: 1rem;
-			border: none;
-			background-color: var(--bs-white);
-		}
-
-		.card-body {
-			padding-top: 0;
-			text-align: left;
-			line-height: 1.4;
-			color: var(--bs-gray);
-		}
-
-		.icon-ring {
-			display: inline-block;
-			height: 1.25rem;
-			aspect-ratio: 1;
-			color: var(--bs-primary);
-			border: 1.5px solid var(--bs-primary);
-			border-radius: 100vmax;
-
-			:global(svg) {
-				margin-left: 1px;
-				margin-bottom: 1px;
-			}
-		}
-
-		h6 {
-			margin: 0;
-			color: var(--bs-primary);
-			font-weight: normal;
 		}
 	}
 </style>

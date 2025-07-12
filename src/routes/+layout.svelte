@@ -15,7 +15,7 @@
 		$margin-y: 1rem;
 		margin: $margin-y auto;
 		max-width: 902px;
-		height: calc(100dvh - 2 * $margin-y);
+		min-height: calc(100dvh - 2 * $margin-y);
 		background-color: white;
 		padding: min(2rem, 6vw) min(3rem, 6vw) 0;
 		box-shadow:

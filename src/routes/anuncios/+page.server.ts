@@ -1,4 +1,4 @@
-import type { Announcement, PayloadResponse } from '$lib/appTypes';
+import type { Announcement } from '$lib/appTypes';
 import payloadApi from '$lib/payloadApi';
 import { AxiosError } from 'axios';
 import type { PageServerLoad } from './$types';
@@ -20,14 +20,12 @@ type AnnouncementDTO = {
 export const load: PageServerLoad = async () => {
 	let announcementList: Announcement[] = [];
 
-	const announcementsResponse = await payloadApi.get<PayloadResponse<AnnouncementDTO[]>>(
-		'/announcements?where[isActive][equals]=true',
-	);
+	const announcementsResponse = await payloadApi.get<AnnouncementDTO[]>('/announcements/active');
 	if (announcementsResponse instanceof AxiosError) {
 		console.error(`Response error: ${announcementsResponse.message}`);
 	}
 
-	announcementList = announcementsResponse.data.docs.map((announcement, index) => ({
+	announcementList = announcementsResponse.data.map((announcement, index) => ({
 		index,
 		slug: announcement.slug,
 		imageLink: announcement.image.url,

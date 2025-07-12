@@ -15,10 +15,12 @@
 	"eslint.validate": [
 		"svelte"
 	],
+	"cSpell.language": "en,es",
 	"cSpell.words": [
 		"autohide",
 		"coverflow",
 		"scopable",
+		"sveltestrap",
 		"swiper",
 		"whatsapp",
 		"WHATSAPP"

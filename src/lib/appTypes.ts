@@ -33,7 +33,3 @@ export type Announcement = {
 	description: string;
 	isSelected?: boolean;
 };
-
-export type PayloadResponse<T> = {
-	docs: T;
-};
