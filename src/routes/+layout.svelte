@@ -2,7 +2,26 @@
 	import Header from './HeaderComponent.svelte';
 
 	import '../styles/main.scss';
+	import { onMount } from 'svelte';
+	import { Temporal } from 'temporal-polyfill';
+
+	const reloadPageIfNewDate = () => {
+		const today = Temporal.Now.plainDateISO().toString();
+		const lastReloadDate = localStorage.getItem('lastReloadDate');
+
+		if (lastReloadDate !== today) {
+			localStorage.setItem('lastReloadDate', today);
+			location.reload();
+		}
+	};
+
+	onMount(() => {
+		const today = Temporal.Now.plainDateISO().toString();
+		localStorage.setItem('lastReloadDate', today);
+	});
 </script>
+
+<svelte:window on:focus={reloadPageIfNewDate} />
 
 <main>
 	<Header />
