@@ -6,7 +6,6 @@
 	import Fa from 'svelte-fa';
 	import { fade, fly } from 'svelte/transition';
 
-	import { PUBLIC_SHARE_LINK_BASE } from '$env/static/public';
 	import appService from '$lib/appService';
 	import type { Announcement } from '$lib/appTypes';
 	import AnimateToCenterComponent from '$lib/components/AnimateToCenterComponent.svelte';
@@ -17,7 +16,7 @@
 
 	export let data: PageData;
 
-	const { announcementList } = data;
+	const { announcementSlug, appDomain, announcementList } = data;
 
 	let announcements: Announcement[] = [];
 	let isDomReady = false;
@@ -25,7 +24,6 @@
 	let announcementsFlyDelay = 200;
 
 	// Get the selected Announcement from the URL announcement param if indicated
-	const announcementSlug = page.url.searchParams.get('anuncio');
 	let selectedAnnouncement: Announcement | undefined;
 	let shouldShowToast = false;
 	if (announcementSlug) {
@@ -103,7 +101,7 @@
 										color="light"
 										on:click={() =>
 											openSocialMediaModal(
-												`${PUBLIC_SHARE_LINK_BASE}/anuncios?anuncio=${announcement.slug}`,
+												`${appDomain}/anuncios?anuncio=${announcement.slug}`,
 											)}
 									>
 										<Fa icon={faShare} />
@@ -150,11 +148,11 @@
 		/>
 		<meta
 			property="og:image"
-			content="{PUBLIC_SHARE_LINK_BASE}/{selectedAnnouncement.imageLink}"
+			content="{appDomain}/{selectedAnnouncement.imageLink}"
 		/>
 		<meta
 			property="og:url"
-			content="{PUBLIC_SHARE_LINK_BASE}/anuncios?anuncio={selectedAnnouncement.slug}"
+			content="{appDomain}/anuncios?anuncio={selectedAnnouncement.slug}"
 		/>
 	{/if}
 </svelte:head>

@@ -8,7 +8,6 @@
 	import type { SwiperOptions } from 'swiper/types';
 	import { Temporal } from 'temporal-polyfill';
 
-	import { PUBLIC_SHARE_LINK_BASE } from '$env/static/public';
 	import appService from '$lib/appService';
 	import type { CalendarDate, Event } from '$lib/appTypes';
 	import NoContentPlaceholderComponent from '$lib/components/NoContentPlaceholderComponent.svelte';
@@ -20,13 +19,12 @@
 
 	export let data: PageData;
 
-	let { eventList, weekList } = data;
+	let { eventSlug, appDomain, eventList, weekList } = data;
 
 	const DATES_SWIPE_SPEED_IN_MS = 1000;
 	const EVENTS_SWIPE_SPEED_IN_MS = 1000;
 
 	let selectedEvent: Event;
-	let eventSlug: string | null = null;
 	let eventFromURL: Event | undefined;
 	let selectedCalendarDates: CalendarDate[] = [];
 	let shouldShowToast = false;
@@ -71,7 +69,6 @@
 	if (eventList.length) {
 		// Get the selected Event from the URL event param if indicated
 		selectedEvent = eventList[0];
-		eventSlug = page.url.searchParams.get('evento');
 		if (eventSlug) {
 			eventFromURL = eventList.find((event) => event.slug === eventSlug);
 			if (eventFromURL) {
@@ -268,7 +265,7 @@
 										color="light"
 										on:click={() =>
 											openSocialMediaModal(
-												`${PUBLIC_SHARE_LINK_BASE}/eventos?evento=${selectedEvent.slug}`,
+												`${appDomain}/eventos?evento=${selectedEvent.slug}`,
 											)}
 									>
 										<Fa icon={faShare} />
@@ -314,7 +311,7 @@
 										color="light"
 										on:click={() =>
 											openSocialMediaModal(
-												`${PUBLIC_SHARE_LINK_BASE}/eventos?evento=${selectedEvent.slug}`,
+												`${appDomain}/eventos?evento=${selectedEvent.slug}`,
 											)}
 									>
 										<Fa icon={faShare} />
@@ -359,11 +356,11 @@
 		/>
 		<meta
 			property="og:image"
-			content="{PUBLIC_SHARE_LINK_BASE}/{selectedEvent.imageLink}"
+			content="{appDomain}/{selectedEvent.imageLink}"
 		/>
 		<meta
 			property="og:url"
-			content="{PUBLIC_SHARE_LINK_BASE}/eventos?evento={selectedEvent.slug}"
+			content="{appDomain}/eventos?evento={selectedEvent.slug}"
 		/>
 	{/if}
 </svelte:head>

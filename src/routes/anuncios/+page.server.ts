@@ -17,7 +17,10 @@ type AnnouncementDTO = {
 	createdAt: string;
 };
 
-export const load: PageServerLoad = async () => {
+export const load: PageServerLoad = async ({ url }) => {
+	const announcementSlug = url.searchParams.get('anuncio');
+	const appDomain = url.origin;
+
 	let announcementList: Announcement[] = [];
 
 	const announcementsResponse = await payloadApi.get<AnnouncementDTO[]>('/announcements/active');
@@ -33,6 +36,8 @@ export const load: PageServerLoad = async () => {
 	}));
 
 	return {
+		announcementSlug,
+		appDomain,
 		announcementList,
 	};
 };

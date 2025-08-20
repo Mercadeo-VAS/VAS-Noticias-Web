@@ -19,7 +19,10 @@ type UpcomingEventDTO = {
 	createdAt: string;
 };
 
-export const load: PageServerLoad = async () => {
+export const load: PageServerLoad = async ({ url }) => {
+	const eventSlug = url.searchParams.get('evento');
+	const appDomain = url.origin;
+
 	let rawEvents: Event[] = [];
 
 	const upcomingEventsResponse =
@@ -46,6 +49,8 @@ export const load: PageServerLoad = async () => {
 	const { eventList, weekList } = appService.generateAppData(rawEvents);
 
 	return {
+		eventSlug,
+		appDomain,
 		eventList,
 		weekList,
 	};
