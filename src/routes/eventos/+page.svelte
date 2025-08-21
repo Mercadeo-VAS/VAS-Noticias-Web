@@ -356,7 +356,7 @@
 		/>
 		<meta
 			property="og:image"
-			content="{appDomain}/{selectedEvent.imageLink}"
+			content={selectedEvent.imageLink}
 		/>
 		<meta
 			property="og:url"

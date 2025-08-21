@@ -148,7 +148,7 @@
 		/>
 		<meta
 			property="og:image"
-			content="{appDomain}/{selectedAnnouncement.imageLink}"
+			content={selectedAnnouncement.imageLink}
 		/>
 		<meta
 			property="og:url"
