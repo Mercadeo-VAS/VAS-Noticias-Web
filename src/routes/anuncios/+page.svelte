@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { page } from '$app/state';
 	import { faArrowDown, faArrowUp, faShare } from '@fortawesome/free-solid-svg-icons';
 	import { Button } from '@sveltestrap/sveltestrap';
 	import { onMount } from 'svelte';
@@ -159,16 +158,30 @@
 
 <style lang="scss">
 	section {
-		flex: 1;
+		@media (width < 48rem) {
+			--bottom-offset: 5rem;
+		}
+
+		@media (width >= 48rem) {
+			--bottom-offset: 0;
+		}
+
+		& {
+			flex: 1;
+			margin-bottom: var(--bottom-offset);
+		}
 	}
 
 	.announcements-wrapper {
-		margin-inline: max(-3rem, -6vw);
-		padding-inline: min(3rem, 6vw);
-		overflow-y: auto;
-		overflow-x: hidden;
-		position: relative;
-		margin-top: -1rem;
+		@media (width >= 48rem) {
+			overflow-x: hidden;
+		}
+
+		& {
+			padding-inline: var(--app-page-padding-x);
+			margin-inline: var(--app-page-margin-x);
+			position: relative;
+		}
 	}
 
 	.sticky-top-scroll-shadow {
@@ -182,7 +195,7 @@
 		height: 3rem;
 		background: linear-gradient(transparent, white 90%);
 		position: sticky;
-		bottom: 0;
+		bottom: var(--bottom-offset);
 		pointer-events: none;
 	}
 

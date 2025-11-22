@@ -1,5 +1,5 @@
 <script>
-	import NavbarComponent from '$lib/components/NavbarComponent.svelte';
+	import NavbarComponent from './NavbarComponent.svelte';
 </script>
 
 <header>

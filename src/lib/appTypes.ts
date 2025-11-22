@@ -1,6 +1,9 @@
+import type { Temporal } from 'temporal-polyfill';
+
 export const AppURL = {
-	EVENTOS: '/eventos',
+	UPCOMING_EVENTS: '/proximos-eventos',
 	ANUNCIOS: '/anuncios',
+	CALENDARIO: '/calendario',
 } as const;
 
 // Type for the Events in the Events Swiper
@@ -32,4 +35,16 @@ export type Announcement = {
 	imageLink: string;
 	description: string;
 	isSelected?: boolean;
+};
+
+export type CalendarEvent = {
+	dateString: string;
+	ministry: string;
+	title: string;
+};
+
+export type MonthCell = {
+	date: Temporal.PlainDate | undefined;
+	inMonth: boolean;
+	events: CalendarEvent[];
 };
