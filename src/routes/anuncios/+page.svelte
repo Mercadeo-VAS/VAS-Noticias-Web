@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { page } from '$app/state';
 	import { faArrowDown, faArrowUp, faShare } from '@fortawesome/free-solid-svg-icons';
 	import { Button } from '@sveltestrap/sveltestrap';
 	import { onMount } from 'svelte';
@@ -61,75 +60,71 @@
 
 <section>
 	{#if announcementList.length}
-		<div class="announcements-wrapper">
-			<div class="sticky-top-scroll-shadow" />
-			<div class="announcements">
-				{#each announcements as announcement, index (index)}
-					{@const toggle = () => (announcement.isSelected = !announcement.isSelected)}
-					<div
-						in:fly={{
-							x: 200,
-							duration: announcementsFlyDuration,
-							delay: announcementsFlyDelay * index,
-						}}
+		<div class="announcements">
+			{#each announcements as announcement, index (index)}
+				{@const toggle = () => (announcement.isSelected = !announcement.isSelected)}
+				<div
+					in:fly={{
+						x: 200,
+						duration: announcementsFlyDuration,
+						delay: announcementsFlyDelay * index,
+					}}
+				>
+					<AnimateToCenterComponent
+						isSelected={announcement.isSelected}
+						{toggle}
 					>
-						<AnimateToCenterComponent
-							isSelected={announcement.isSelected}
-							{toggle}
+						<div
+							class="announcement"
+							class:selected={announcement.isSelected}
 						>
-							<div
-								class="announcement"
-								class:selected={announcement.isSelected}
-							>
-								<img
-									src={announcement.imageLink}
-									alt="Anuncio"
-								/>
-								<div class="description-container">
-									<div
-										class="description"
-										transition:fade={{
-											duration: 500,
-										}}
-									>
-										{@html announcement.description}
-									</div>
-								</div>
-								<div class="footer">
-									<Button
-										size="sm"
-										color="light"
-										on:click={() =>
-											openSocialMediaModal(
-												`${appDomain}/anuncios?anuncio=${announcement.slug}`,
-											)}
-									>
-										<Fa icon={faShare} />
-										<span>Compartir</span>
-									</Button>
-									<Button
-										size="sm"
-										color="primary"
-										on:click={toggle}
-									>
-										<span
-											>{announcement.isSelected
-												? 'Volver'
-												: 'Ver más detalles'}</span
-										>
-										{#if announcement.isSelected}
-											<Fa icon={faArrowDown} />
-										{:else}
-											<Fa icon={faArrowUp} />
-										{/if}
-									</Button>
+							<img
+								src={announcement.imageLink}
+								alt="Anuncio"
+							/>
+							<div class="description-container">
+								<div
+									class="description"
+									transition:fade={{
+										duration: 500,
+									}}
+								>
+									{@html announcement.description}
 								</div>
 							</div>
-						</AnimateToCenterComponent>
-					</div>
-				{/each}
-			</div>
-			<div class="sticky-bottom-scroll-shadow" />
+							<div class="footer">
+								<Button
+									size="sm"
+									color="light"
+									on:click={() =>
+										openSocialMediaModal(
+											`${appDomain}/anuncios?anuncio=${announcement.slug}`,
+										)}
+								>
+									<Fa icon={faShare} />
+									<span>Compartir</span>
+								</Button>
+								<Button
+									size="sm"
+									color="primary"
+									on:click={toggle}
+								>
+									<span
+										>{announcement.isSelected
+											? 'Volver'
+											: 'Ver más detalles'}</span
+									>
+									{#if announcement.isSelected}
+										<Fa icon={faArrowDown} />
+									{:else}
+										<Fa icon={faArrowUp} />
+									{/if}
+								</Button>
+							</div>
+						</div>
+					</AnimateToCenterComponent>
+				</div>
+			{/each}
 		</div>
 	{:else}
 		<NoContentPlaceholderComponent
@@ -160,30 +155,14 @@
 <style lang="scss">
 	section {
 		flex: 1;
-	}
 
-	.announcements-wrapper {
-		margin-inline: max(-3rem, -6vw);
-		padding-inline: min(3rem, 6vw);
-		overflow-y: auto;
-		overflow-x: hidden;
-		position: relative;
-		margin-top: -1rem;
-	}
+		@media (width < 48rem) {
+			margin-bottom: 3rem;
+		}
 
-	.sticky-top-scroll-shadow {
-		height: 2rem;
-		background: linear-gradient(white, transparent);
-		position: sticky;
-		top: 0;
-	}
-
-	.sticky-bottom-scroll-shadow {
-		height: 3rem;
-		background: linear-gradient(transparent, white 90%);
-		position: sticky;
-		bottom: 0;
-		pointer-events: none;
+		@media (width >= 48rem) {
+			margin-bottom: 2rem;
+		}
 	}
 
 	.announcements {
@@ -191,7 +170,12 @@
 		grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
 		gap: 1.5rem;
 
-		@media (min-width: 769px) {
+		@media (width >= 48rem) {
+			margin-top: 1rem;
+			padding-inline: var(--app-page-padding-x);
+			margin-inline: var(--app-page-margin-x);
+			position: relative;
+			overflow-x: hidden;
 			grid-template-columns: repeat(auto-fit, minmax(300px, 0.5fr));
 		}
 	}

@@ -1,5 +1,10 @@
 <script lang="ts">
-	import { page } from '$app/state';
+	import { ABBREVIATED_MONTHS, ABBREVIATED_WEEK_DAYS, MONTH_NAMES } from '$lib/appConstants';
+	import appService from '$lib/appService';
+	import type { CalendarDate, Event } from '$lib/appTypes';
+	import NoContentPlaceholderComponent from '$lib/components/NoContentPlaceholderComponent.svelte';
+	import { openSocialMediaModal } from '$lib/components/modal';
+	import { showToast } from '$lib/components/toast';
 	import { faShare } from '@fortawesome/free-solid-svg-icons';
 	import { Button } from '@sveltestrap/sveltestrap';
 	import { onMount } from 'svelte';
@@ -7,12 +12,6 @@
 	import Swiper from 'swiper/bundle';
 	import type { SwiperOptions } from 'swiper/types';
 	import { Temporal } from 'temporal-polyfill';
-
-	import appService from '$lib/appService';
-	import type { CalendarDate, Event } from '$lib/appTypes';
-	import NoContentPlaceholderComponent from '$lib/components/NoContentPlaceholderComponent.svelte';
-	import { openSocialMediaModal } from '$lib/components/modal';
-	import { showToast } from '$lib/components/toast';
 	import type { PageData } from './$types';
 	// TODO: *** Change from bundle to the specific modules ***
 	import 'swiper/css/bundle';
@@ -35,36 +34,6 @@
 	let upcomingEventsSwiperParams: SwiperOptions;
 	let didSlideChangeFromEvents = false;
 	let isDomReady = false;
-
-	const monthNames = [
-		'Enero',
-		'Febrero',
-		'Marzo',
-		'Abril',
-		'Mayo',
-		'Junio',
-		'Julio',
-		'Agosto',
-		'Septiembre',
-		'Octubre',
-		'Noviembre',
-		'Diciembre',
-	];
-	const abbreviatedMonths = [
-		'Ene',
-		'Feb',
-		'Mar',
-		'Abr',
-		'May',
-		'Jun',
-		'Jul',
-		'Ago',
-		'Sep',
-		'Oct',
-		'Nov',
-		'Dic',
-	];
-	const abbreviatedDaysOfTheWeek = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
 
 	if (eventList.length) {
 		// Get the selected Event from the URL event param if indicated
@@ -160,7 +129,7 @@
 
 	function getMonthAndYearString(calendarDate: CalendarDate) {
 		const date = Temporal.PlainDate.from(calendarDate.dateString);
-		return `${monthNames[date.month - 1]} ${date.year}`;
+		return `${MONTH_NAMES[date.month - 1]} ${date.year}`;
 	}
 
 	let eventFooterVisibilityTimeout: ReturnType<typeof setTimeout>;
@@ -191,7 +160,7 @@
 
 <section>
 	{#if eventList.length}
-		<div class="dates-row">
+		<div class="app-dates-row">
 			<h4 class="month-and-year fade-in">{monthAndYear}</h4>
 			<div class="swiper dates-swiper">
 				<div class="swiper-wrapper fade-in">
@@ -199,21 +168,23 @@
 						<div class="swiper-slide week">
 							{#each week as calendarDate}
 								{@const date = Temporal.PlainDate.from(calendarDate.dateString)}
-								{@const dayOfTheWeek = abbreviatedDaysOfTheWeek[date.dayOfWeek - 1]}
+								{@const dayOfTheWeek = ABBREVIATED_WEEK_DAYS[date.dayOfWeek - 1]}
 								{@const dayNumber = date.day}
 								<div
 									class="date {dayOfTheWeek.toLowerCase()}"
 									class:today={calendarDate.dateString ===
 										Temporal.Now.plainDateISO().toString()}
-									class:selected={selectedCalendarDates.includes(calendarDate)}
+									class:app-date-selected={selectedCalendarDates.includes(
+										calendarDate,
+									)}
 								>
-									<div class="day-of-the-week">
+									<div class="app-day-of-the-week">
 										{dayOfTheWeek}
 									</div>
 									<div class="day-number-container">
 										<div class="day-number">
 											{#if dayNumber === 1}
-												{abbreviatedMonths[date.month - 1]}
+												{ABBREVIATED_MONTHS[date.month - 1]}
 											{/if}
 											{dayNumber}
 										</div>
@@ -366,21 +337,18 @@
 </svelte:head>
 
 <style lang="scss">
-	.dates-row {
-		background-color: var(--bs-gray-200);
-		margin-left: max(-3rem, -6vw);
-		margin-right: max(-3rem, -6vw);
-		padding-top: 0.5rem;
+	.app-dates-row {
+		padding-top: min(1rem, 2vw);
+	}
 
-		h4 {
-			font-size: min(22px, 5vw);
-			text-align: center;
-			margin-bottom: 0.25rem;
-		}
+	.month-and-year {
+		font-size: min(22px, 5vw);
+		text-align: center;
+		margin-bottom: 0.25rem;
 	}
 
 	.dates-swiper {
-		padding-block: 0.5rem;
+		padding-block: 0.5rem min(1rem, 2vw);
 
 		.week {
 			width: min(486px, 101vw);
@@ -410,37 +378,31 @@
 			gap: 4px;
 			line-height: 1;
 			align-items: center;
-
-			&.selected {
-				background-color: white;
-				border-radius: 4px;
-				box-shadow:
-					0 4px 6px -1px rgb(0 0 0 / 0.1),
-					0 2px 4px -2px rgb(0 0 0 / 0.1);
-			}
-		}
-
-		.day-of-the-week {
-			font-size: 10px;
-			opacity: 0.5;
+			border-radius: 4px;
 		}
 
 		.day-number-container {
 			display: flex;
 			align-items: baseline;
-			font-size: min(1rem, 3.5vw);
-			font-weight: bold;
 		}
 
 		.day-number {
 			height: 2rem;
 			aspect-ratio: 1;
+			font-size: min(1rem, 3.5vw);
+			font-weight: 600;
+			opacity: 0.9;
 			line-height: 28px;
 			white-space: nowrap;
 		}
 
+		.app-date-selected .day-number {
+			font-weight: 800;
+			opacity: 1;
+		}
+
 		.today .day-number {
-			border: 2px solid var(--bs-primary);
+			border: var(--app-border-today);
 			border-radius: 100vmax;
 			padding-inline: 4px;
 		}
@@ -469,11 +431,10 @@
 		$img-size: 300px;
 		$footer-height: 40px;
 
-		margin-left: max(-3rem, -6vw);
-		margin-right: max(-3rem, -6vw);
 		padding-top: 1rem;
-		padding-bottom: 50px + $footer-height;
-		opacity: 0; // Will be overrode by .fly-in
+		padding-bottom: 35px + $footer-height;
+		margin-inline: var(--app-page-margin-x);
+		opacity: 0; // Will be overridden by .fly-in
 
 		.swiper-slide {
 			width: $img-size;
