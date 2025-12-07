@@ -1,9 +1,9 @@
 <script lang="ts">
 	import Header from './HeaderComponent.svelte';
 
-	import '../styles/main.scss';
 	import { onMount } from 'svelte';
 	import { Temporal } from 'temporal-polyfill';
+	import '../styles/main.scss';
 
 	const reloadPageIfNewDate = () => {
 		const today = Temporal.Now.plainDateISO().toString();
@@ -31,25 +31,25 @@
 
 <style lang="scss">
 	main {
-		$margin-y: 1rem;
-		margin: $margin-y auto;
 		max-width: 902px;
-		min-height: calc(100dvh - 2 * $margin-y);
 		background-color: white;
-		padding: min(2rem, 6vw) var(--app-page-padding-x) 0;
+		padding: 0 var(--app-page-padding-x);
 		box-shadow:
 			0 10px 15px -3px rgba(0, 0, 0, 0.1),
 			0 4px 6px -2px rgba(0, 0, 0, 0.05);
 		display: flex;
 		flex-direction: column;
-	}
 
-	$breakpoint-width: 920px;
-
-	@media (max-width: $breakpoint-width) {
-		main {
+		@media (width < 48rem) {
 			margin-block: 0;
-			min-height: 100dvh;
+			height: calc(100dvh - var(--app-navbar-height));
+			overflow: auto;
+		}
+
+		@media (width >= 48rem) {
+			$margin-y: 1rem;
+			margin: $margin-y auto;
+			min-height: calc(100dvh - 2 * $margin-y);
 		}
 	}
 </style>

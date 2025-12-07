@@ -19,15 +19,24 @@
 <style lang="scss">
 	header {
 		z-index: 1; // Make it appear over the announcements section
+		padding-top: min(0.75rem, 2.5vw);
 	}
 
 	h1 {
 		font-weight: bold;
-		font-size: min(3rem, 8vw);
+		margin: 0;
 		display: flex;
 		justify-content: center;
 		align-items: center;
 		gap: 0.25em;
+
+		@media (width < 48rem) {
+			font-size: 1.875rem;
+		}
+
+		@media (width >= 48rem) {
+			font-size: 3rem;
+		}
 
 		.primary {
 			color: var(--bs-primary);
@@ -39,6 +48,12 @@
 	}
 
 	.logo {
-		height: min(4rem, 11vw);
+		@media (width < 48rem) {
+			height: 2.5rem;
+		}
+
+		@media (width >= 48rem) {
+			height: 4rem;
+		}
 	}
 </style>

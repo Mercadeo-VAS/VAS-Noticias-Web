@@ -10,8 +10,8 @@ $headings-line-height: 1;
 $primary: #0076aa; //rgb(0, 118, 170);
 $secondary: #f3b122; //rgb(243, 177, 34);
 $dark: #595a5c; //rgb(89, 90, 92);
-$gray-200: #E8F1F8;
-$body-bg: #E9ECF5;
+$gray-200: #e8f1f8;
+$body-bg: #e9ecf5;
 $body-color: $dark;
 $headings-color: $dark;
 
@@ -22,15 +22,14 @@ $headings-color: $dark;
 	}
 
 	.toast {
-	--bs-toast-padding-x: 1rem;
-	--bs-toast-bg: var(--bs-dark);
-	--bs-toast-color: white;
-	--bs-toast-max-width: 240px;
+		--bs-toast-padding-x: 1rem;
+		--bs-toast-bg: var(--bs-dark);
+		--bs-toast-color: white;
+		--bs-toast-max-width: 240px;
 
-	position: fixed;
-	top: 1rem;
-	right: 1rem;
-	z-index: 1100;
-}
-
+		position: fixed;
+		top: 1rem;
+		right: 1rem;
+		z-index: 1100;
+	}
 }

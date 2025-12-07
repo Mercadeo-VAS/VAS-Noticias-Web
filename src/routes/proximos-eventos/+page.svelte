@@ -337,8 +337,8 @@
 </svelte:head>
 
 <style lang="scss">
-	section {
-		padding-top: 1rem;
+	.app-dates-row {
+		padding-top: min(1rem, 2vw);
 	}
 
 	.month-and-year {
@@ -348,7 +348,7 @@
 	}
 
 	.dates-swiper {
-		padding-block: 0.5rem;
+		padding-block: 0.5rem min(1rem, 2vw);
 
 		.week {
 			width: min(486px, 101vw);
@@ -432,9 +432,9 @@
 		$footer-height: 40px;
 
 		padding-top: 1rem;
-		padding-bottom: 50px + $footer-height;
+		padding-bottom: 35px + $footer-height;
 		margin-inline: var(--app-page-margin-x);
-		opacity: 0; // Will be overrode by .fly-in
+		opacity: 0; // Will be overridden by .fly-in
 
 		.swiper-slide {
 			width: $img-size;

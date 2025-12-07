@@ -3,65 +3,99 @@
 	import { AppURL } from '$lib/appTypes';
 	import { faBullhorn, faCalendarAlt, faCalendarDay } from '@fortawesome/free-solid-svg-icons';
 	import { Nav, NavItem, NavLink } from '@sveltestrap/sveltestrap';
+	import { onMount } from 'svelte';
 	import Fa from 'svelte-fa';
+
+	let navbarWrapperElement: HTMLDivElement;
+	let isFixed = false;
+
+	onMount(() => {
+		if (window.matchMedia('(width < 48rem)').matches) {
+			const observer = new IntersectionObserver(
+				([entry]) => {
+					isFixed = !entry.isIntersecting;
+				},
+				{ threshold: 1 },
+			);
+			observer.observe(navbarWrapperElement);
+			return () => observer.disconnect();
+		}
+	});
 </script>
 
-<div class="navbar">
-	<Nav pills>
-		<NavItem>
-			<NavLink
-				href="/eventos"
-				active={$page.route.id === AppURL.UPCOMING_EVENTS}
-			>
-				<div class="wrapper">
-					<div class="icon-container">
-						<Fa
-							icon={faCalendarDay}
-							size="lg"
-						/>
+<div
+	class="navbar-wrapper"
+	bind:this={navbarWrapperElement}
+>
+	<div
+		class="sticky-top-scroll-shadow"
+		style={isFixed ? 'position: fixed;' : ''}
+	/>
+	<div class="navbar">
+		<Nav pills>
+			<NavItem>
+				<NavLink
+					href="/proximos-eventos"
+					active={$page.route.id === AppURL.UPCOMING_EVENTS}
+				>
+					<div class="wrapper">
+						<div class="icon-container">
+							<Fa
+								icon={faCalendarDay}
+								size="lg"
+							/>
+						</div>
+						<h2>Próximos Eventos</h2>
 					</div>
-					<h2>Próximos Eventos</h2>
-				</div>
-			</NavLink>
-		</NavItem>
+				</NavLink>
+			</NavItem>
 
-		<NavItem>
-			<NavLink
-				href="/anuncios"
-				active={$page.route.id === AppURL.ANUNCIOS}
-			>
-				<div class="wrapper">
-					<div class="icon-container">
-						<Fa
-							icon={faBullhorn}
-							size="lg"
-						/>
+			<NavItem>
+				<NavLink
+					href="/anuncios"
+					active={$page.route.id === AppURL.ANUNCIOS}
+				>
+					<div class="wrapper">
+						<div class="icon-container">
+							<Fa
+								icon={faBullhorn}
+								size="lg"
+							/>
+						</div>
+						<h2>Anuncios</h2>
 					</div>
-					<h2>Anuncios</h2>
-				</div>
-			</NavLink>
-		</NavItem>
+				</NavLink>
+			</NavItem>
 
-		<NavItem>
-			<NavLink
-				href="/calendario"
-				active={$page.route.id === AppURL.CALENDARIO}
-			>
-				<div class="wrapper">
-					<div class="icon-container">
-						<Fa
-							icon={faCalendarAlt}
-							size="lg"
-						/>
+			<NavItem>
+				<NavLink
+					href="/calendario"
+					active={$page.route.id === AppURL.CALENDARIO}
+				>
+					<div class="wrapper">
+						<div class="icon-container">
+							<Fa
+								icon={faCalendarAlt}
+								size="lg"
+							/>
+						</div>
+						<h2>Calendario</h2>
 					</div>
-					<h2>Calendario</h2>
-				</div>
-			</NavLink>
-		</NavItem>
-	</Nav>
+				</NavLink>
+			</NavItem>
+		</Nav>
+		<div class="sticky-bottom-scroll-shadow" />
+	</div>
 </div>
 
 <style lang="scss">
+	$top-scroll-shadow-height: 2rem;
+
+	.navbar-wrapper {
+		min-height: $top-scroll-shadow-height;
+		position: relative;
+	}
+
 	.navbar {
 		padding: 0;
 
@@ -87,10 +121,10 @@
 
 		@media (width < 48rem) {
 			position: fixed;
+			height: 82px;
 			bottom: 0;
 			inset-inline: 0;
 			background-color: white;
-			border-top: 1px solid var(--bs-gray-200);
 
 			:global(.nav) {
 				display: flex;
@@ -179,6 +213,32 @@
 				font-size: 1.75rem;
 				line-height: 1.5;
 			}
+		}
+	}
+
+	.sticky-top-scroll-shadow {
+		height: $top-scroll-shadow-height;
+		width: 100%;
+		background: linear-gradient(white, transparent);
+		position: relative;
+		top: 0;
+	}
+
+	.sticky-bottom-scroll-shadow {
+		$height: 3rem;
+		height: $height;
+		width: 100%;
+		background: linear-gradient(transparent, white 90%);
+		position: absolute;
+		top: -$height;
+		pointer-events: none;
+		border-bottom: 1px solid var(--bs-gray-200);
+	}
+
+	.sticky-top-scroll-shadow,
+	.sticky-bottom-scroll-shadow {
+		@media (width >= 48rem) {
+			display: none;
 		}
 	}
 </style>

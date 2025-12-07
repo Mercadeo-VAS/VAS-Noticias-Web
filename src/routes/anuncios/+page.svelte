@@ -60,75 +60,71 @@
 
 <section>
 	{#if announcementList.length}
-		<div class="announcements-wrapper">
-			<div class="sticky-top-scroll-shadow" />
-			<div class="announcements">
-				{#each announcements as announcement, index (index)}
-					{@const toggle = () => (announcement.isSelected = !announcement.isSelected)}
-					<div
-						in:fly={{
-							x: 200,
-							duration: announcementsFlyDuration,
-							delay: announcementsFlyDelay * index,
-						}}
+		<div class="announcements">
+			{#each announcements as announcement, index (index)}
+				{@const toggle = () => (announcement.isSelected = !announcement.isSelected)}
+				<div
+					in:fly={{
+						x: 200,
+						duration: announcementsFlyDuration,
+						delay: announcementsFlyDelay * index,
+					}}
+				>
+					<AnimateToCenterComponent
+						isSelected={announcement.isSelected}
+						{toggle}
 					>
-						<AnimateToCenterComponent
-							isSelected={announcement.isSelected}
-							{toggle}
+						<div
+							class="announcement"
+							class:selected={announcement.isSelected}
 						>
-							<div
-								class="announcement"
-								class:selected={announcement.isSelected}
-							>
-								<img
-									src={announcement.imageLink}
-									alt="Anuncio"
-								/>
-								<div class="description-container">
-									<div
-										class="description"
-										transition:fade={{
-											duration: 500,
-										}}
-									>
-										{@html announcement.description}
-									</div>
-								</div>
-								<div class="footer">
-									<Button
-										size="sm"
-										color="light"
-										on:click={() =>
-											openSocialMediaModal(
-												`${appDomain}/anuncios?anuncio=${announcement.slug}`,
-											)}
-									>
-										<Fa icon={faShare} />
-										<span>Compartir</span>
-									</Button>
-									<Button
-										size="sm"
-										color="primary"
-										on:click={toggle}
-									>
-										<span
-											>{announcement.isSelected
-												? 'Volver'
-												: 'Ver más detalles'}</span
-										>
-										{#if announcement.isSelected}
-											<Fa icon={faArrowDown} />
-										{:else}
-											<Fa icon={faArrowUp} />
-										{/if}
-									</Button>
+							<img
+								src={announcement.imageLink}
+								alt="Anuncio"
+							/>
+							<div class="description-container">
+								<div
+									class="description"
+									transition:fade={{
+										duration: 500,
+									}}
+								>
+									{@html announcement.description}
 								</div>
 							</div>
-						</AnimateToCenterComponent>
-					</div>
-				{/each}
-			</div>
-			<div class="sticky-bottom-scroll-shadow" />
+							<div class="footer">
+								<Button
+									size="sm"
+									color="light"
+									on:click={() =>
+										openSocialMediaModal(
+											`${appDomain}/anuncios?anuncio=${announcement.slug}`,
+										)}
+								>
+									<Fa icon={faShare} />
+									<span>Compartir</span>
+								</Button>
+								<Button
+									size="sm"
+									color="primary"
+									on:click={toggle}
+								>
+									<span
+										>{announcement.isSelected
+											? 'Volver'
+											: 'Ver más detalles'}</span
+									>
+									{#if announcement.isSelected}
+										<Fa icon={faArrowDown} />
+									{:else}
+										<Fa icon={faArrowUp} />
+									{/if}
+								</Button>
+							</div>
+						</div>
+					</AnimateToCenterComponent>
+				</div>
+			{/each}
 		</div>
 	{:else}
 		<NoContentPlaceholderComponent
@@ -158,45 +154,15 @@
 
 <style lang="scss">
 	section {
+		flex: 1;
+
 		@media (width < 48rem) {
-			--bottom-offset: 5rem;
+			margin-bottom: 3rem;
 		}
 
 		@media (width >= 48rem) {
-			--bottom-offset: 0;
+			margin-bottom: 2rem;
 		}
-
-		& {
-			flex: 1;
-			margin-bottom: var(--bottom-offset);
-		}
-	}
-
-	.announcements-wrapper {
-		@media (width >= 48rem) {
-			overflow-x: hidden;
-		}
-
-		& {
-			padding-inline: var(--app-page-padding-x);
-			margin-inline: var(--app-page-margin-x);
-			position: relative;
-		}
-	}
-
-	.sticky-top-scroll-shadow {
-		height: 2rem;
-		background: linear-gradient(white, transparent);
-		position: sticky;
-		top: 0;
-	}
-
-	.sticky-bottom-scroll-shadow {
-		height: 3rem;
-		background: linear-gradient(transparent, white 90%);
-		position: sticky;
-		bottom: var(--bottom-offset);
-		pointer-events: none;
 	}
 
 	.announcements {
@@ -204,7 +170,12 @@
 		grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
 		gap: 1.5rem;
 
-		@media (min-width: 769px) {
+		@media (width >= 48rem) {
+			margin-top: 1rem;
+			padding-inline: var(--app-page-padding-x);
+			margin-inline: var(--app-page-margin-x);
+			position: relative;
+			overflow-x: hidden;
 			grid-template-columns: repeat(auto-fit, minmax(300px, 0.5fr));
 		}
 	}

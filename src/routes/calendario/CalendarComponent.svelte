@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { ABBREVIATED_WEEK_DAYS } from '$lib/appConstants';
+	import { ABBREVIATED_WEEK_DAYS, MONTH_NAMES } from '$lib/appConstants';
 	import type { CalendarEvent, MonthCell } from '$lib/appTypes';
 	import { faAngleLeft, faAngleRight } from '@fortawesome/free-solid-svg-icons';
 	import { Button } from '@sveltestrap/sveltestrap';
@@ -97,10 +97,12 @@
 		return Temporal.PlainDate.compare(a, b) === 0;
 	}
 
-	$: monthAndYear = visibleMonth.toLocaleString(undefined, {
-		month: 'long',
-		year: 'numeric',
-	});
+	let monthAndYear = '';
+	$: {
+		const monthName = MONTH_NAMES[visibleMonth.month - 1]; // month is 1..12
+		const year = visibleMonth.year;
+		monthAndYear = `${monthName} ${year}`;
+	}
 
 	function selectMonthCell(monthCell: MonthCell) {
 		if (!monthCell.date) return;
@@ -118,27 +120,39 @@
 	let calendarSwiperParams: SwiperOptions = {
 		slidesPerView: 'auto',
 		autoHeight: true,
-		spaceBetween: 32,
-		on: {
-			slideChange: handleSlideChange,
-			// sliderMove: handleSlideChange,
-			transitionEnd: handleSlideChange, // TODO: *** Hay que corregir esto. Quiero que el monthAndYear cambie inmediatamente al presionar los botones, pero que se actualice al final de la animación cuando se hace swipe manualmente. ***
-		},
+		spaceBetween: 48,
 	};
 	let swiperState = { isBeginning: true, isEnd: false };
 
-	function goToCurrentMonth() {
+	function goToToday() {
+		// Slide to today's month
 		const todaysMonthIndex = monthList.findIndex((month) => month.equals(todayMonth));
 		calendarSwiper.slideTo(todaysMonthIndex);
+
+		// Select today's date cell
+		const currentMonthCells = monthCellsByMonth[todaysMonthIndex];
+		const todayCell = currentMonthCells.find((cell) => isSame(cell.date, today))!;
+		selectMonthCell(todayCell);
 	}
 
 	onMount(() => {
 		calendarSwiper = new Swiper('.calendar-swiper', calendarSwiperParams);
+
+		/**
+		 * This if-else is basically to decide whether to show the visibleMonth change immediately (for mouse users)
+		 * or after the transition ends (for touch users).
+		 **/
+		if (window.matchMedia('(any-pointer: fine)').matches) {
+			// If the device has a fine pointer (e.g., mouse)
+			calendarSwiper.on('slideChange', handleSlideChange);
+		} else {
+			calendarSwiper.on('transitionEnd', handleSlideChange);
+		}
 	});
 </script>
 
 <div
-	class="calendar"
+	class="calendar fade-in"
 	aria-label="Calendar"
 >
 	<h4>{monthAndYear}</h4>
@@ -180,8 +194,6 @@
 					</div>
 				</div>
 			{/each}
-			<!-- Dummy spacer slide to make the last month align to the left -->
-			<div class="swiper-slide month"></div>
 		</div>
 	</div>
 
@@ -190,7 +202,7 @@
 			class="today-button"
 			size="sm"
 			color="light"
-			on:click={goToCurrentMonth}
+			on:click={goToToday}
 			aria-label="Go to current month"
 		>
 			Hoy
@@ -221,25 +233,75 @@
 
 <style lang="scss">
 	.calendar {
-		width: 320px;
-		margin-block: 1.65rem 0.25rem;
+		position: relative;
+
+		@media (width < 48rem) {
+			width: 80vw;
+			align-self: center;
+		}
+
+		@media (width >= 48rem) {
+			width: 320px;
+			margin-block: 1.675rem 0.25rem;
+		}
 	}
 
 	h4 {
 		font-size: min(18px, 4vw);
+		margin: 0;
 		opacity: 0.9;
-		text-align: center;
-		margin-bottom: 0.75rem;
+
+		@media (width < 48rem) {
+			line-height: 2rem;
+			margin-left: 1rem;
+		}
+
+		@media (width >= 48rem) {
+			text-align: center;
+		}
 	}
 
 	.calendar-swiper {
-		width: calc(200% + 4rem);
-		margin-left: -2rem;
-		padding-left: 2rem;
+		margin-top: 0.75rem;
+		padding-bottom: 0.5rem;
+
+		@media (width < 48rem) {
+			width: 100vw;
+			margin-inline: -10vw;
+			padding-inline: 10vw;
+		}
+
+		@media (width >= 48rem) {
+			width: calc(100% + (var(--app-page-padding-x) * 2));
+			margin-inline: var(--app-page-margin-x);
+			padding-inline: var(--app-page-padding-x);
+		}
 	}
 
 	.month {
-		width: 320px;
+		@media (width < 48rem) {
+			width: 100%;
+		}
+
+		@media (width >= 48rem) {
+			width: 320px;
+		}
+	}
+
+	@keyframes fadeIn {
+		0% {
+			opacity: 0;
+		}
+		50% {
+			opacity: 0;
+		}
+		100% {
+			opacity: 1;
+		}
+	}
+
+	.fade-in {
+		animation: fadeIn 1s ease-in forwards;
 	}
 
 	.row-weekdays {
@@ -260,13 +322,13 @@
 
 	.day {
 		all: unset;
+		box-sizing: border-box;
 		font-size: min(1rem, 3.5vw);
 		font-weight: 600;
 		opacity: 0.9;
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		border: 2px solid transparent;
 		border-radius: 4px;
 		cursor: pointer;
 		position: relative;
@@ -282,7 +344,13 @@
 
 	.day,
 	.empty-cell {
-		height: 48px;
+		@media (width < 48rem) {
+			height: 40px;
+		}
+
+		@media (width >= 48rem) {
+			height: 48px;
+		}
 	}
 
 	.app-date-selected.day {
@@ -292,32 +360,48 @@
 
 	.event-dots {
 		position: absolute;
-		bottom: 4px;
+		bottom: 3px;
 		display: flex;
-		gap: 3px;
+		gap: min(2.5px, 0.6vw);
 	}
 
 	.event-dot {
-		width: 8px;
-		height: 8px;
+		width: min(8px, 2vw);
+		aspect-ratio: 1;
 		background-color: var(--bs-primary);
 		border-radius: 50%;
 	}
 
 	.calendar-buttons-row {
-		margin-top: 0.5rem;
 		display: flex;
 		gap: 0.5rem;
 		align-items: center;
 		justify-content: flex-end;
-		padding-right: 3px;
+
+		@media (width < 48rem) {
+			position: absolute;
+			top: 0;
+			right: 0;
+
+			:global(.btn-primary) {
+				width: 10vw;
+			}
+		}
+
+		@media (width >= 48rem) {
+			padding-right: 1px;
+
+			:global(.btn-primary) {
+				width: 38px;
+			}
+
+			:global(.btn-light) {
+				width: 64px;
+			}
+		}
 	}
 
 	:global(.today-button) {
 		width: 60px;
-	}
-
-	:global(.calendar-nav-button) {
-		width: 40px;
 	}
 </style>
