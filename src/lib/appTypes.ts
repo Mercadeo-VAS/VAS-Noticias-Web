@@ -38,7 +38,7 @@ export type Announcement = {
 };
 
 export type CalendarEvent = {
-	dateString: string;
+	dateStrings: string[];
 	ministry: string;
 	title: string;
 };

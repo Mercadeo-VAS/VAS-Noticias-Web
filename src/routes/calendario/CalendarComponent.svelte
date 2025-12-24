@@ -18,7 +18,7 @@
 	export let selectedMonthCell: MonthCell = { date: today, inMonth: true, events: [] };
 
 	// Parse dateStrings into Temporal.PlainDate array and a Set for quick lookups
-	const dateStrings = calendarEvents.map((event) => event.dateString);
+	const dateStrings = calendarEvents.flatMap((event) => event.dateStrings);
 	const plainDates = dateStrings.map((dateString) => Temporal.PlainDate.from(dateString));
 
 	let minDate: Temporal.PlainDate | undefined = undefined;
@@ -84,7 +84,9 @@
 
 		// Assign the events to the corresponding dates
 		for (const event of calendarEvents) {
-			monthCellsByDateString[event.dateString]?.events.push(event);
+			for (const dateString of event.dateStrings) {
+				monthCellsByDateString[dateString]?.events.push(event);
+			}
 		}
 
 		return Object.values(monthCellsByDateString);

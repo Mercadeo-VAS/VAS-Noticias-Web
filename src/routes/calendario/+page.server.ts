@@ -10,8 +10,7 @@ type CalendarEventDTO = {
 		name: string;
 	};
 	title: string;
-	description?: string;
-	dateString: string;
+	dateStrings: string[];
 };
 
 export const load: PageServerLoad = async () => {
@@ -23,10 +22,9 @@ export const load: PageServerLoad = async () => {
 	}
 
 	calendarEvents = calendarEventsResponse.data.map((event) => ({
-		dateString: event.dateString,
+		dateStrings: event.dateStrings,
 		ministry: event.ministry.name,
 		title: event.title,
-		description: event.description,
 	}));
 
 	return {
