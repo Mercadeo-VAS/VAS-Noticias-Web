@@ -39,7 +39,10 @@ export type Announcement = {
 
 export type CalendarEvent = {
 	dateStrings: string[];
-	ministry: string;
+	ministry: {
+		name: string;
+		hexColor?: string;
+	};
 	title: string;
 };
 

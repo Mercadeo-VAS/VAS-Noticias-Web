@@ -39,8 +39,11 @@
 	{#if events.length > 0}
 		<ul class="event-list">
 			{#each events as event}
-				<li class="event">
-					<div class="ministry">{event.ministry}</div>
+				<li
+					class="event"
+					style="--ministry-color: {event.ministry.hexColor}"
+				>
+					<div class="ministry">{event.ministry.name}</div>
 					<div>{event.title}</div>
 				</li>
 			{/each}
@@ -77,10 +80,10 @@
 
 		padding: 1rem;
 		margin-left: $left-border-size - 1px;
-		background-color: rgba(var(--app-color-primary-rgb), 0.1);
+		background-color: rgb(from var(--ministry-color) r g b / 0.1);
 		border-top-right-radius: 0.25rem;
 		border-bottom-right-radius: 0.25rem;
-		border: $border-size solid rgba(var(--app-color-primary-rgb), 0.2);
+		border: $border-size solid rgb(from var(--ministry-color) r g b / 0.2);
 		position: relative;
 
 		&::before {
@@ -90,7 +93,7 @@
 			top: -$border-size;
 			bottom: -$border-size;
 			width: $left-border-size;
-			background-color: var(--bs-primary);
+			background-color: rgb(from var(--ministry-color) r g b / 1);
 		}
 
 		+ .event {

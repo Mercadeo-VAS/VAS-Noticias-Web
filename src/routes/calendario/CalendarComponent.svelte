@@ -124,7 +124,7 @@
 		autoHeight: true,
 		spaceBetween: 48,
 	};
-	let swiperState = { isBeginning: true, isEnd: false };
+	let swiperState = { isBeginning: true, isEnd: true };
 
 	function goToToday() {
 		// Slide to today's month
@@ -139,6 +139,8 @@
 
 	onMount(() => {
 		calendarSwiper = new Swiper('.calendar-swiper', calendarSwiperParams);
+
+		swiperState.isEnd = calendarSwiper.isEnd;
 
 		/**
 		 * This if-else is basically to decide whether to show the visibleMonth change immediately (for mouse users)
@@ -183,8 +185,12 @@
 									<span class="day-number">{cell.date?.day || ''}</span>
 									{#if cell.events.length}
 										<div class="event-dots">
-											{#each cell.events as _event}
-												<div class="event-dot" />
+											{#each cell.events as event}
+												<div
+													class="event-dot"
+													style="background-color: {event.ministry
+														.hexColor}"
+												/>
 											{/each}
 										</div>
 									{/if}
@@ -226,7 +232,10 @@
 			aria-label="Next month"
 			color="primary"
 			disabled={swiperState.isEnd}
-			on:click={() => calendarSwiper.slideNext()}
+			on:click={() => {
+				console.log('swiperState', swiperState.isEnd);
+				calendarSwiper.slideNext();
+			}}
 		>
 			<Fa icon={faAngleRight} />
 		</Button>
@@ -362,7 +371,7 @@
 
 	.event-dots {
 		position: absolute;
-		bottom: 3px;
+		bottom: 0.25rem;
 		display: flex;
 		gap: min(2.5px, 0.6vw);
 	}
@@ -370,7 +379,6 @@
 	.event-dot {
 		width: min(8px, 2vw);
 		aspect-ratio: 1;
-		background-color: var(--bs-primary);
 		border-radius: 50%;
 	}
 

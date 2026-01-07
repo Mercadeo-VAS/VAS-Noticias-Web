@@ -1,5 +1,6 @@
 import type { CalendarEvent } from '$lib/appTypes';
 import payloadApi from '$lib/payloadApi';
+import colorService from '$lib/services/colorService';
 import { AxiosError } from 'axios';
 import type { PageServerLoad } from './$types';
 
@@ -21,9 +22,24 @@ export const load: PageServerLoad = async () => {
 		console.error(`Response error: ${calendarEventsResponse.message}`);
 	}
 
-	calendarEvents = calendarEventsResponse.data.map((event) => ({
+	const uniqueMinistries = Array.from(
+		new Map(calendarEventsResponse.data.map((e) => [e.ministry.id, e.ministry])).values(),
+	);
+
+	const colorStep = 360 / (uniqueMinistries.length || 1);
+
+	const hexColorByMinistryId: Record<string, string> = {};
+	uniqueMinistries.forEach((ministry, index) => {
+		const deg = (index + 1) * colorStep;
+		hexColorByMinistryId[ministry.id] = colorService.getHexColorFromDeg(deg);
+	});
+
+	calendarEvents = calendarEventsResponse.data.map((event, index) => ({
 		dateStrings: event.dateStrings,
-		ministry: event.ministry.name,
+		ministry: {
+			name: event.ministry.name,
+			hexColor: hexColorByMinistryId[event.ministry.id],
+		},
 		title: event.title,
 	}));
 
